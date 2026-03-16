@@ -6,7 +6,12 @@ let frameIdx = 0;
 let loaderInterval;
 
 function initTerminal() {
-    if (!currentToken) return;
+    if (!currentToken) {
+        console.error("[DEBUG] initTerminal failed: No currentToken found.");
+        return;
+    }
+
+    console.log("[DEBUG] Initializing Terminal WebSocket...");
 
     // Update the command prompt with the username
     const promptEl = document.getElementById('prompt-text');
@@ -16,8 +21,12 @@ function initTerminal() {
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     ws = new WebSocket(`${wsProtocol}//${window.location.host}/ws/${currentToken}`);
 
+    ws.onopen = () => console.log("[DEBUG] WebSocket Connection OPENED.");
+
     ws.onmessage = (e) => {
         const data = JSON.parse(e.data);
+        console.log("[DEBUG] WS Message Received:", data.type);
+        
         const out = document.getElementById('terminal-output');
         const aiChat = document.getElementById('ai-mini-chat');
         
@@ -53,7 +62,10 @@ function initTerminal() {
         }
     };
 
+    ws.onerror = (err) => console.error("[DEBUG] WebSocket Error:", err);
+
     ws.onclose = () => {
+        console.warn("[DEBUG] WebSocket CLOSED.");
         const out = document.getElementById('terminal-output');
         if(out) {
             const div = document.createElement('div');
@@ -62,41 +74,46 @@ function initTerminal() {
             out.appendChild(div);
         }
     };
-
-    // Handle Input - MOBILE OPTIMIZED
-    const input = document.getElementById('terminal-input');
-    if (input) {
-        const newInput = input.cloneNode(true);
-        input.parentNode.replaceChild(newInput, input);
-        
-        // 1. Block the physical 'Enter' key from creating new lines on mobile
-        newInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.keyCode === 13) {
-                e.preventDefault(); 
-            }
-        });
-        
-        // 2. Actually execute the command on keyup (much more reliable on Android)
-        newInput.addEventListener('keyup', (e) => {
-            if (e.key === 'Enter' || e.keyCode === 13) {
-                e.preventDefault();
-                
-                const cmd = newInput.value.trim();
-                if (cmd && ws.readyState === WebSocket.OPEN) {
-                    // Echo user command to screen
-                    const div = document.createElement('div');
-                    div.className = 'term-msg user';
-                    div.textContent = `${document.getElementById('prompt-text').innerText} ${cmd}`;
-                    document.getElementById('terminal-output').appendChild(div);
-                    
-                    // Send to backend
-                    ws.send(JSON.stringify({ command: cmd }));
-                    newInput.value = '';
-                }
-            }
-        });
-    }
 }
+
+// ⚡ THE BULLETPROOF SEND FUNCTION ⚡
+// This is triggered by both the mobile keyboard "Enter/Go" and the physical Send button
+window.sendTerminalCommand = function() {
+    const input = document.getElementById('terminal-input');
+    if (!input) return;
+
+    const cmd = input.value.trim();
+    console.log("[DEBUG] Attempting to send command:", cmd);
+
+    if (!cmd) {
+        console.log("[DEBUG] Command is empty. Ignoring.");
+        return;
+    }
+
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+        console.error("[DEBUG] Cannot send. WebSocket is not open! State:", ws ? ws.readyState : "Undefined");
+        alert("Terminal disconnected. Please refresh the page.");
+        return;
+    }
+
+    console.log("[DEBUG] Sending command to server...");
+    
+    // Echo user command to screen
+    const div = document.createElement('div');
+    div.className = 'term-msg user';
+    div.textContent = `${document.getElementById('prompt-text').innerText} ${cmd}`;
+    document.getElementById('terminal-output').appendChild(div);
+    
+    // Send to backend
+    ws.send(JSON.stringify({ command: cmd }));
+    
+    // Clear input and keep focus
+    input.value = '';
+    // Optional: Only refocus if not on a very small mobile screen to prevent keyboard jumping
+    if (window.innerWidth > 768) {
+        input.focus(); 
+    }
+};
 
 // Loader Animation Functions
 function startLoader(statusText) {
