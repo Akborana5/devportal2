@@ -1,0 +1,48 @@
+/* static/css/variables.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+
+:root {
+    /* DEVPORTAL Dark Tech Palette */
+    --bg-base: #050505;
+    --bg-surface: #0a0a0a;
+    --panel-bg: rgba(20, 20, 20, 0.6);
+    
+    /* The Neon Yellow Accent */
+    --accent-main: #ffc107;
+    --accent-glow: rgba(255, 193, 7, 0.3);
+    --accent-hover: #ffca2c;
+    
+    /* Text Colors */
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0a0;
+    --text-muted: #666666;
+    
+    /* Borders & UI */
+    --border-color: rgba(255, 255, 255, 0.08);
+    --glass-border: 1px solid rgba(255, 255, 255, 0.05);
+    --error-color: #ff3366;
+    --success-color: #00e676;
+    
+    /* Fonts */
+    --font-ui: 'Inter', sans-serif;
+    --font-mono: 'Fira Code', monospace;
+    
+    /* Glassmorphism blur */
+    --backdrop-blur: blur(12px);
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-ui);
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-main); }
