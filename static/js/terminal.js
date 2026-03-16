@@ -37,7 +37,7 @@ function initTerminal() {
             out.appendChild(div);
             out.scrollTop = out.scrollHeight;
 
-            // If it's an AI message, also show it in the shiny side panel!
+            // If it's an AI message, also show it in the shiny side panel
             if (data.type === 'ai' && aiChat) {
                 const aiDiv = document.createElement('div');
                 aiDiv.style.marginBottom = '10px';
@@ -63,15 +63,24 @@ function initTerminal() {
         }
     };
 
-    // Handle Input
+    // Handle Input - MOBILE OPTIMIZED
     const input = document.getElementById('terminal-input');
     if (input) {
-        // Remove old event listeners by cloning
         const newInput = input.cloneNode(true);
         input.parentNode.replaceChild(newInput, input);
         
+        // 1. Block the physical 'Enter' key from creating new lines on mobile
         newInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                e.preventDefault(); 
+            }
+        });
+        
+        // 2. Actually execute the command on keyup (much more reliable on Android)
+        newInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                e.preventDefault();
+                
                 const cmd = newInput.value.trim();
                 if (cmd && ws.readyState === WebSocket.OPEN) {
                     // Echo user command to screen
