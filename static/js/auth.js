@@ -16,8 +16,12 @@ window.onload = () => {
         // Bypass login screen if already authenticated
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('app-layout').style.display = 'flex';
+
+        switchView('dashboard-view', document.querySelectorAll('.nav-item')[0]);
+
         if (typeof initTerminal === "function") initTerminal(); // Boot Terminal WebSocket
         if (typeof initEditor === "function") initEditor();
+        if (typeof initDashboard === "function") initDashboard();
         if (typeof loadSettings === "function") loadSettings();
     }
 };
@@ -72,9 +76,12 @@ async function handleAuth(action) {
             // Hide auth, show app
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('app-layout').style.display = 'flex';
+
+            switchView('dashboard-view', document.querySelectorAll('.nav-item')[0]);
             
             if (typeof initTerminal === "function") initTerminal();
             if (typeof initEditor === "function") initEditor();
+            if (typeof initDashboard === "function") initDashboard();
             if (typeof loadSettings === "function") loadSettings();
         } else {
             errDiv.style.color = "var(--error-color)";
