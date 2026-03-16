@@ -1,0 +1,44 @@
+<div class="terminal-layout">
+    
+    <div class="terminal-main">
+        <div class="terminal-header">
+            <div class="term-tab active">Terminal 1</div>
+            <div class="term-tab" style="padding: 5px 10px;">+</div>
+            
+            <div style="margin-left: auto; display: flex; gap: 10px;">
+                <button class="term-tab" onclick="document.getElementById('terminal-output').innerHTML=''">🗑️ Clear</button>
+            </div>
+        </div>
+        
+        <div id="terminal-output" class="terminal-body">
+            </div>
+        
+        <div class="terminal-input-area">
+            <span id="prompt-text">user@devportal:~$</span>
+            <input type="text" id="terminal-input" autocomplete="off" spellcheck="false" placeholder="Type command or 'ai <request>'">
+        </div>
+    </div>
+
+    <div class="terminal-sidebar">
+        
+        <div class="glass-panel" style="flex: 2;">
+            <h3 class="panel-title">🤖 AI Assistant</h3>
+            <div id="ai-mini-chat" style="flex: 1; overflow-y: auto; margin-bottom: 10px; font-size: 13px; color: var(--text-secondary);">
+                <em>Run an AI command in the terminal to see analysis here.</em>
+            </div>
+            <div id="ai-loader" style="display: none; color: var(--accent-main); font-size: 12px; font-family: var(--font-mono);">
+                [ <span id="spinner">/</span> ] Processing...
+            </div>
+        </div>
+
+        <div class="glass-panel" style="flex: 1;">
+            <h3 class="panel-title">⚡ Quick Commands</h3>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <button class="term-tab" style="text-align: left;" onclick="insertCmd('ls -la')">📂 List Files (ls -la)</button>
+                <button class="term-tab" style="text-align: left;" onclick="insertCmd('htop')">📊 System Monitor (htop)</button>
+                <button class="term-tab" style="text-align: left;" onclick="insertCmd('python3 --version')">🐍 Check Python Version</button>
+            </div>
+        </div>
+        
+    </div>
+</div>
