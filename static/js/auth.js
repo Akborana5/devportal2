@@ -17,6 +17,7 @@ window.onload = () => {
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('app-layout').style.display = 'flex';
         if (typeof initTerminal === "function") initTerminal(); // Boot Terminal WebSocket
+        if (typeof initEditor === "function") initEditor();
     }
 };
 
@@ -72,6 +73,7 @@ async function handleAuth(action) {
             document.getElementById('app-layout').style.display = 'flex';
             
             if (typeof initTerminal === "function") initTerminal();
+            if (typeof initEditor === "function") initEditor();
         } else {
             errDiv.style.color = "var(--error-color)";
             errDiv.innerText = data.error;
