@@ -1,0 +1,135 @@
+<style>
+    #auth-screen {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop') center/cover;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+    
+    .auth-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: radial-gradient(circle at center, rgba(5,5,5,0.7) 0%, rgba(5,5,5,0.95) 100%);
+    }
+
+    .auth-box {
+        position: relative;
+        width: 100%;
+        max-width: 400px;
+        background: rgba(15, 15, 15, 0.6);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 40px 30px;
+        box-shadow: 0 0 40px rgba(0,0,0,0.8), 0 0 20px rgba(255, 193, 7, 0.05);
+        z-index: 2;
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .auth-header h2 {
+        margin: 0 0 8px 0;
+        font-size: 24px;
+        color: var(--text-primary);
+    }
+
+    .auth-header p {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 14px;
+    }
+
+    .auth-input-group {
+        margin-bottom: 20px;
+    }
+
+    .auth-input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 14px 16px;
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: white;
+        font-family: var(--font-ui);
+        font-size: 14px;
+        transition: all 0.3s;
+    }
+
+    .auth-input:focus {
+        outline: none;
+        border-color: var(--accent-main);
+        box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .auth-btn {
+        width: 100%;
+        padding: 14px;
+        background: var(--accent-main);
+        color: #000;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .auth-btn:hover {
+        background: var(--accent-hover);
+        box-shadow: 0 0 15px var(--accent-glow);
+        transform: translateY(-1px);
+    }
+
+    .auth-switch {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+
+    .auth-switch a {
+        color: var(--accent-main);
+        text-decoration: none;
+        cursor: pointer;
+        font-weight: 500;
+    }
+</style>
+
+<div id="auth-screen">
+    <div class="auth-overlay"></div>
+    <div class="auth-box">
+        <div class="auth-header">
+            <h2>Login to <span style="color: var(--accent-main);">DEVPORTAL</span></h2>
+            <p>Access your Developer Workspace</p>
+        </div>
+        
+        <div id="login-form">
+            <div class="auth-input-group">
+                <input type="text" id="auth-username" class="auth-input" placeholder="Username" autocomplete="off">
+            </div>
+            <div class="auth-input-group">
+                <input type="password" id="auth-password" class="auth-input" placeholder="Password">
+            </div>
+            <div id="auth-error" style="color: var(--error-color); font-size: 13px; margin-bottom: 15px; text-align: center;"></div>
+            
+            <button class="auth-btn" onclick="handleAuth('login')">
+                Sign In <span>→</span>
+            </button>
+            <div class="auth-switch">
+                Don't have an account? <a onclick="toggleAuthMode('register')">Create Account</a>
+            </div>
+        </div>
+    </div>
+</div>
