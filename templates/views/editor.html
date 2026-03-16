@@ -1,0 +1,28 @@
+<div class="editor-layout">
+    
+    <div class="file-explorer">
+        <div class="explorer-header">
+            <span>EXPLORER</span>
+            <button class="editor-btn" onclick="newFile()" style="padding: 2px 6px;">+ New</button>
+        </div>
+        <div id="file-list" class="file-list">
+            <div style="color: var(--text-muted); font-size: 12px; text-align: center; margin-top: 20px;">Loading files...</div>
+        </div>
+    </div>
+
+    <div class="editor-main">
+        <div class="editor-toolbar">
+            <input type="text" id="current-filename" class="filename-input" placeholder="untitled.py">
+            
+            <button class="editor-btn" onclick="renameFile()">Rename</button>
+            <button class="editor-btn primary" onclick="saveFile()">💾 Save</button>
+            
+            <div style="margin-left: auto; display: flex; gap: 10px;">
+                <button class="editor-btn ai" onclick="aiEdit()">✨ AI Edit</button>
+            </div>
+        </div>
+        
+        <div id="ace-editor"></div>
+    </div>
+
+</div>
