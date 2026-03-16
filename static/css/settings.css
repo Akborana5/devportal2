@@ -1,0 +1,150 @@
+/* static/css/settings.css */
+.settings-layout {
+    display: flex;
+    flex: 1;
+    height: calc(100vh - 65px);
+    padding: 20px;
+    gap: 30px;
+    box-sizing: border-box;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Left: Settings Menu */
+.settings-sidebar {
+    width: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.settings-tab {
+    padding: 12px 16px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: 0.2s;
+}
+
+.settings-tab:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.settings-tab.active {
+    background: rgba(255, 193, 7, 0.1);
+    color: var(--accent-main);
+    border-left: 3px solid var(--accent-main);
+    border-radius: 0 8px 8px 0;
+}
+
+/* Right: Settings Content Panels */
+.settings-content-wrapper {
+    flex: 1;
+    background: rgba(15, 15, 18, 0.7);
+    backdrop-filter: var(--backdrop-blur);
+    border: var(--glass-border);
+    border-radius: 12px;
+    padding: 30px;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.settings-section {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.settings-section.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.settings-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 25px;
+    color: var(--text-primary);
+    border-bottom: var(--glass-border);
+    padding-bottom: 15px;
+}
+
+/* Form Elements */
+.setting-group {
+    margin-bottom: 25px;
+}
+
+.setting-group label {
+    display: block;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.setting-input, .setting-select {
+    width: 100%;
+    max-width: 400px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-family: var(--font-ui);
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.setting-input:focus, .setting-select:focus {
+    outline: none;
+    border-color: var(--accent-main);
+}
+
+/* Color Picker Swatches */
+.color-swatch-container {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.color-swatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: 0.2s;
+}
+
+.color-swatch:hover, .color-swatch.active {
+    transform: scale(1.2);
+    border-color: white;
+}
+
+/* Bottom Action Bar */
+.settings-actions {
+    margin-top: 40px;
+    display: flex;
+    gap: 15px;
+    border-top: var(--glass-border);
+    padding-top: 20px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .settings-layout { flex-direction: column; }
+    .settings-sidebar { width: 100%; flex-direction: row; overflow-x: auto; }
+    .settings-tab { white-space: nowrap; border-left: none; border-bottom: 3px solid transparent; border-radius: 8px 8px 0 0;}
+    .settings-tab.active { border-left: none; border-bottom: 3px solid var(--accent-main); }
+}
