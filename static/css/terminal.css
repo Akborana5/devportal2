@@ -125,3 +125,33 @@
     .terminal-layout { flex-direction: column; }
     .terminal-sidebar { min-width: 100%; }
 }
+
+/* Add to static/css/terminal.css */
+
+/* Update input area to handle the new form tag */
+form.terminal-input-area {
+    margin: 0; /* Remove default form margins */
+}
+
+#terminal-send-btn {
+    padding: 8px 16px;
+    font-family: var(--font-ui);
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#terminal-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    height: 100%; /* Fill the area */
+}
