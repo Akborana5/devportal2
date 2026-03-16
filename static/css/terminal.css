@@ -1,0 +1,127 @@
+/* static/css/terminal.css */
+.terminal-layout {
+    display: flex;
+    flex: 1;
+    height: calc(100vh - 65px); /* Subtract top bar */
+    padding: 20px;
+    gap: 20px;
+    box-sizing: border-box;
+}
+
+/* Left Side: Main Terminal Window */
+.terminal-main {
+    flex: 2;
+    background: rgba(10, 10, 12, 0.9);
+    border: var(--glass-border);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    overflow: hidden;
+}
+
+.terminal-header {
+    height: 40px;
+    background: rgba(20, 20, 25, 0.8);
+    border-bottom: var(--glass-border);
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    gap: 10px;
+}
+
+.term-tab {
+    padding: 5px 15px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.term-tab.active {
+    background: rgba(255, 193, 7, 0.1);
+    color: var(--accent-main);
+    border: 1px solid rgba(255, 193, 7, 0.2);
+}
+
+.terminal-body {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.term-msg { white-space: pre-wrap; word-wrap: break-word; }
+.term-msg.user { color: var(--accent-main); }
+.term-msg.system { color: #888; font-style: italic; }
+.term-msg.output { color: #e0e0e0; }
+.term-msg.error { color: var(--error-color); }
+.term-msg.ai { color: #00e676; }
+
+.terminal-input-area {
+    padding: 15px 20px;
+    background: rgba(0, 0, 0, 0.4);
+    border-top: var(--glass-border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+}
+
+#prompt-text {
+    color: var(--accent-main);
+    font-weight: 500;
+}
+
+#terminal-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+}
+
+/* Right Side: AI Assistant & Commands */
+.terminal-sidebar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 300px;
+}
+
+.glass-panel {
+    background: rgba(15, 15, 18, 0.7);
+    backdrop-filter: var(--backdrop-blur);
+    border: var(--glass-border);
+    border-radius: 12px;
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-top: 0;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 1024px) {
+    .terminal-layout { flex-direction: column; }
+    .terminal-sidebar { min-width: 100%; }
+}
