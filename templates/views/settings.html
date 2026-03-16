@@ -1,0 +1,90 @@
+<div class="settings-layout">
+    
+    <div class="settings-sidebar">
+        <h3 style="padding: 0 16px; font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Settings</h3>
+        <div class="settings-tab active" onclick="switchSettingsPanel('panel-profile', this)">👤 Profile</div>
+        <div class="settings-tab" onclick="switchSettingsPanel('panel-appearance', this)">🎨 Appearance</div>
+        <div class="settings-tab" onclick="switchSettingsPanel('panel-editor', this)">⌨️ Editor Settings</div>
+        <div class="settings-tab" onclick="switchSettingsPanel('panel-terminal', this)">💻 Terminal Settings</div>
+    </div>
+
+    <div class="settings-content-wrapper">
+        
+        <div id="panel-profile" class="settings-section active">
+            <h2 class="settings-title">Profile</h2>
+            <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 30px;">
+                <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--accent-main); display: flex; justify-content: center; align-items: center; font-size: 30px; color: #000; font-weight: bold;" id="profile-avatar">U</div>
+                <div>
+                    <div class="setting-group" style="margin-bottom: 10px;">
+                        <input type="text" id="setting-username" class="setting-input" disabled style="opacity: 0.7;">
+                    </div>
+                </div>
+            </div>
+            <button class="editor-btn primary" onclick="alert('Profile updates coming in v2!')">Update Profile</button>
+        </div>
+
+        <div id="panel-appearance" class="settings-section">
+            <h2 class="settings-title">Appearance</h2>
+            
+            <div class="setting-group">
+                <label>Theme Mode</label>
+                <select id="setting-theme-mode" class="setting-select" onchange="previewSettings()">
+                    <option value="dark">Dark Theme (Default)</option>
+                    <option value="light">Light Theme</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label>System Accent Color</label>
+                <div class="color-swatch-container">
+                    <div class="color-swatch active" style="background: #ffc107;" onclick="setAccentColor('#ffc107', this)"></div>
+                    <div class="color-swatch" style="background: #00ffcc;" onclick="setAccentColor('#00ffcc', this)"></div>
+                    <div class="color-swatch" style="background: #00e676;" onclick="setAccentColor('#00e676', this)"></div>
+                    <div class="color-swatch" style="background: #b388ff;" onclick="setAccentColor('#b388ff', this)"></div>
+                    <input type="color" id="custom-accent-color" value="#ffc107" style="background: none; border: none; cursor: pointer; width: 30px; height: 30px; padding: 0;" onchange="setAccentColor(this.value, null)">
+                </div>
+            </div>
+        </div>
+
+        <div id="panel-editor" class="settings-section">
+            <h2 class="settings-title">Editor Settings</h2>
+            
+            <div class="setting-group">
+                <label>Font Size</label>
+                <select id="setting-editor-font-size" class="setting-select" onchange="previewSettings()">
+                    <option value="12px">12px</option>
+                    <option value="14px" selected>14px</option>
+                    <option value="16px">16px</option>
+                    <option value="18px">18px</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label>Font Family</label>
+                <select id="setting-editor-font" class="setting-select" onchange="previewSettings()">
+                    <option value="'Fira Code', monospace" selected>Fira Code</option>
+                    <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
+                    <option value="'Consolas', monospace">Consolas</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="panel-terminal" class="settings-section">
+            <h2 class="settings-title">Terminal Settings</h2>
+            <div class="setting-group">
+                <label>Terminal Font Size</label>
+                <select id="setting-terminal-font-size" class="setting-select" onchange="previewSettings()">
+                    <option value="13px">13px</option>
+                    <option value="14px" selected>14px</option>
+                    <option value="16px">16px</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="settings-actions">
+            <button class="editor-btn primary" id="save-settings-btn" onclick="saveSettings()">Save Settings</button>
+            <button class="editor-btn" onclick="loadSettings()">Reset Changes</button>
+        </div>
+
+    </div>
+</div>
