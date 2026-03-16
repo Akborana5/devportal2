@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="/static/css/editor.css">
     <link rel="stylesheet" href="/static/css/variables.css">
     <link rel="stylesheet" href="/static/css/layout.css">
+    <link rel="stylesheet" href="/static/css/settings.css">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.3/ace.js"></script>
 </head>
@@ -71,7 +72,9 @@
 
             <div id="projects-view" class="view-container"></div>
 
-            <div id="settings-view" class="view-container"></div>
+            <div id="settings-view" class="view-container">
+                {% include 'views/settings.html' %}
+            </div>
 
         </main>
     </div>
@@ -79,6 +82,7 @@
     <script src="/static/js/app.js"></script>
     <script src="/static/js/auth.js"></script>
     <script src="/static/js/editor.js"></script>
+    <script src="/static/js/settings.js"></script>
 
 </body>
 </html>
