@@ -1,0 +1,65 @@
+<div class="dash-layout">
+    
+    <div class="dash-main">
+        <div class="dash-header">
+            <h1>Welcome to DEV<span style="color: var(--accent-main)">PORTAL</span></h1>
+            <p>Your professional developer workspace</p>
+        </div>
+
+        <div class="dash-grid">
+            <div class="dash-card" onclick="switchView('terminal-view', document.querySelectorAll('.nav-item')[1])">
+                <div class="dash-card-icon">💻</div>
+                <h3>Open Terminal</h3>
+                <p>Access the secure Linux terminal environment</p>
+            </div>
+            
+            <div class="dash-card" onclick="switchView('editor-view', document.querySelectorAll('.nav-item')[2])">
+                <div class="dash-card-icon">&lt;/&gt;</div>
+                <h3>Open Code Editor</h3>
+                <p>Write, edit, and preview project code</p>
+            </div>
+            
+            <div class="dash-card" onclick="switchView('projects-view', document.querySelectorAll('.nav-item')[3])">
+                <div class="dash-card-icon">📁</div>
+                <h3>Manage Projects</h3>
+                <p>Organize and control your workspaces</p>
+            </div>
+            
+            <div class="dash-card" onclick="switchView('terminal-view', document.querySelectorAll('.nav-item')[1]); document.getElementById('terminal-input').focus();">
+                <div class="dash-card-icon">🤖</div>
+                <h3>AI Assistant</h3>
+                <p>Get help with AI-assisted commands and coding</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="dash-sidebar">
+        
+        <div class="dash-widget">
+            <h3 class="widget-title">System Status</h3>
+            
+            <div class="status-row">
+                <div class="status-label"><span>CPU Usage</span> <span id="stat-cpu">12%</span></div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-cpu" style="width: 12%;"></div></div>
+            </div>
+            
+            <div class="status-row">
+                <div class="status-label"><span>Memory Usage</span> <span id="stat-ram">34%</span></div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-ram" style="width: 34%;"></div></div>
+            </div>
+            
+            <div class="status-row">
+                <div class="status-label"><span>Disk Usage</span> <span id="stat-disk">45%</span></div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-disk" style="width: 45%; background: #00e676; box-shadow: 0 0 10px rgba(0,230,118,0.5);"></div></div>
+            </div>
+        </div>
+
+        <div class="dash-widget">
+            <h3 class="widget-title">Recent Files <span style="font-size: 11px; color: var(--accent-main); cursor: pointer;" onclick="refreshDashboardFiles()">Refresh</span></h3>
+            <div id="dash-recent-files">
+                <div style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 20px 0;">Loading files...</div>
+            </div>
+        </div>
+
+    </div>
+</div>
