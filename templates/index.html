@@ -4,70 +4,96 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DEVPORTAL - Developer Workspace</title>
-    
+
+    <link rel="stylesheet" href="/static/css/terminal.css">
     <link rel="stylesheet" href="/static/css/variables.css">
     <link rel="stylesheet" href="/static/css/layout.css">
-    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.3/ace.js"></script>
 </head>
+
 <body>
 
-    {% include 'views/auth.html' %}
+{% include 'views/auth.html' %}
 
-    <div id="app-layout">
-        
-        <nav id="sidebar">
-            <div class="logo-container">
-                <span style="color: var(--accent-main); font-size: 24px;">&lt;/&gt;</span>
-                <span class="logo-text">DEV<span class="logo-accent">PORTAL</span></span>
+<div id="app-layout">
+
+    <nav id="sidebar">
+        <div class="logo-container">
+            <span style="color: var(--accent-main); font-size: 24px;">&lt;/&gt;</span>
+            <span class="logo-text">DEV<span class="logo-accent">PORTAL</span></span>
+        </div>
+
+        <div class="nav-menu">
+            <div class="nav-item" onclick="switchView('dashboard-view', this)">
+                📊 Home
             </div>
-            
-            <div class="nav-menu">
-                <div class="nav-item" onclick="switchView('dashboard-view', this)">
-                    📊 Home
-                </div>
-                <div class="nav-item active" onclick="switchView('terminal-view', this)">
-                    💻 Terminal
-                </div>
-                <div class="nav-item" onclick="switchView('editor-view', this)">
-                    📝 Code Editor
-                </div>
-                <div class="nav-item" onclick="switchView('projects-view', this)">
-                    📁 Projects
-                </div>
+
+            <div class="nav-item active" onclick="switchView('terminal-view', this)">
+                💻 Terminal
             </div>
-            
-            <div class="nav-menu" style="border-top: var(--glass-border); padding-top: 15px; flex: none;">
-                <div class="nav-item" onclick="switchView('settings-view', this)">
-                    ⚙️ Settings
-                </div>
-                <div class="nav-item" onclick="logout()" style="color: var(--error-color);">
-                    🚪 Logout
-                </div>
+
+            <div class="nav-item" onclick="switchView('editor-view', this)">
+                📝 Code Editor
             </div>
-        </nav>
 
-        <main id="main-content">
-            <header id="top-bar">
-                <button id="mobile-menu-btn" style="background:none; border:none; color:var(--text-primary); font-size:20px; cursor:pointer;" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
-                <div id="top-bar-right" style="display:flex; align-items:center; gap: 15px;">
-                    <span id="connection-status" style="color: var(--success-color); font-size: 12px; display:flex; align-items:center; gap:5px;">
-                        <div style="width:8px; height:8px; border-radius:50%; background:var(--success-color); box-shadow: 0 0 8px var(--success-color);"></div> Connected
-                    </span>
-                </div>
-            </header>
+            <div class="nav-item" onclick="switchView('projects-view', this)">
+                📁 Projects
+            </div>
+        </div>
 
-            <div id="dashboard-view" class="view-container"></div>
-            <div id="terminal-view" class="view-container active"></div>
-            <div id="editor-view" class="view-container"></div>
-            <div id="projects-view" class="view-container"></div>
-            <div id="settings-view" class="view-container"></div>
+        <div class="nav-menu" style="border-top: var(--glass-border); padding-top: 15px; flex: none;">
+            <div class="nav-item" onclick="switchView('settings-view', this)">
+                ⚙️ Settings
+            </div>
 
-        </main>
-    </div>
+            <div class="nav-item" onclick="logout()" style="color: var(--error-color);">
+                🚪 Logout
+            </div>
+        </div>
+    </nav>
 
-    <script>
-        // Placeholder for the main JS logic which we will add next!
-    </script>
+
+    <main id="main-content">
+
+        <header id="top-bar">
+            <button id="mobile-menu-btn"
+                style="background:none; border:none; color:var(--text-primary); font-size:20px; cursor:pointer;"
+                onclick="document.getElementById('sidebar').classList.toggle('open')">
+                ☰
+            </button>
+
+            <div id="top-bar-right" style="display:flex; align-items:center; gap:15px;">
+                <span id="connection-status"
+                    style="color: var(--success-color); font-size:12px; display:flex; align-items:center; gap:5px;">
+                    
+                    <div style="width:8px; height:8px; border-radius:50%; background:var(--success-color); box-shadow:0 0 8px var(--success-color);"></div>
+                    Connected
+                </span>
+            </div>
+        </header>
+
+
+        <!-- Views -->
+
+        <div id="dashboard-view" class="view-container"></div>
+
+        <div id="terminal-view" class="view-container active">
+            {% include 'views/terminal.html' %}
+        </div>
+
+        <div id="editor-view" class="view-container"></div>
+
+        <div id="projects-view" class="view-container"></div>
+
+        <div id="settings-view" class="view-container"></div>
+
+    </main>
+
+</div>
+
+<script src="/static/js/app.js"></script>
+<script src="/static/js/auth.js"></script>
+
 </body>
 </html>
