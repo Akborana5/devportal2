@@ -1,0 +1,110 @@
+/* static/css/layout.css */
+#app-layout {
+    display: none; /* Hidden until authenticated */
+    width: 100%;
+    height: 100%;
+}
+
+/* Sidebar Styling */
+#sidebar {
+    width: 260px;
+    background: var(--bg-surface);
+    border-right: var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
+}
+
+.logo-container {
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: var(--glass-border);
+}
+
+.logo-text {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text-primary);
+}
+
+.logo-accent {
+    color: var(--accent-main);
+}
+
+.nav-menu {
+    padding: 15px 10px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.nav-item {
+    padding: 12px 16px;
+    margin-bottom: 5px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.nav-item:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.nav-item.active {
+    background: rgba(255, 193, 7, 0.1);
+    color: var(--accent-main);
+    border-right: 3px solid var(--accent-main);
+}
+
+/* Main Content Area */
+#main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: radial-gradient(circle at top right, rgba(255,193,7,0.03), transparent 40%);
+}
+
+#top-bar {
+    height: 65px;
+    padding: 0 24px;
+    border-bottom: var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(10, 10, 10, 0.8);
+    backdrop-filter: var(--backdrop-blur);
+}
+
+.view-container {
+    flex: 1;
+    display: none; /* Views are hidden by default */
+    overflow: hidden;
+}
+
+.view-container.active {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+    #sidebar {
+        position: absolute;
+        height: 100%;
+        transform: translateX(-100%);
+    }
+    #sidebar.open {
+        transform: translateX(0);
+        box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+    }
+}
