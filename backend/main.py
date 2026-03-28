@@ -38,5 +38,9 @@ app.include_router(terminal_router)
 
 @app.get("/", response_class=HTMLResponse)
 async def get(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    # FIXED: Using keyword arguments for newer Starlette/FastAPI versions
+    return templates.TemplateResponse(
+        request=request,
+        name="index.html"
+    )
     
