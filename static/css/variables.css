@@ -1,8 +1,9 @@
 /* static/css/variables.css */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
 :root {
-    /* DEVPORTAL Dark Tech Palette */
+    /* DEVPORTAL Dark Tech Palette (Default) */
     --bg-base: #050505;
     --bg-surface: #0a0a0a;
     --panel-bg: rgba(20, 20, 20, 0.6);
@@ -22,6 +23,7 @@
     --glass-border: 1px solid rgba(255, 255, 255, 0.05);
     --error-color: #ff3366;
     --success-color: #00e676;
+    --info-color: #3b82f6;
     
     /* Fonts */
     --font-ui: 'Inter', sans-serif;
@@ -29,6 +31,31 @@
     
     /* Glassmorphism blur */
     --backdrop-blur: blur(12px);
+
+    /* Shadows */
+    --shadow-sm: 0 4px 6px rgba(0,0,0,0.3);
+    --shadow-md: 0 10px 15px rgba(0,0,0,0.5);
+}
+
+:root.light-theme {
+    /* DEVPORTAL Light Palette */
+    --bg-base: #f0f2f5;
+    --bg-surface: #ffffff;
+    --panel-bg: rgba(255, 255, 255, 0.8);
+
+    --accent-main: #0066cc;
+    --accent-glow: rgba(0, 102, 204, 0.3);
+    --accent-hover: #0052a3;
+
+    --text-primary: #1a1a1a;
+    --text-secondary: #4a4a4a;
+    --text-muted: #888888;
+
+    --border-color: rgba(0, 0, 0, 0.1);
+    --glass-border: 1px solid rgba(0, 0, 0, 0.08);
+
+    --shadow-sm: 0 4px 6px rgba(0,0,0,0.05);
+    --shadow-md: 0 10px 15px rgba(0,0,0,0.1);
 }
 
 body {
@@ -36,13 +63,14 @@ body {
     font-family: var(--font-ui);
     background-color: var(--bg-base);
     color: var(--text-primary);
-    height: 100vh;
+    height: 100dvh;
     overflow: hidden;
     display: flex;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.3); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent-main); }

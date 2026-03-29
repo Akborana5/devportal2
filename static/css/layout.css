@@ -108,3 +108,22 @@
         box-shadow: 10px 0 30px rgba(0,0,0,0.5);
     }
 }
+
+/* Additional Mobile/Android Adjustments */
+@media (max-width: 480px) {
+    #top-bar {
+        padding: 0 15px; /* Reduce padding for smaller screens */
+    }
+
+    #top-bar-right {
+        gap: 10px; /* Reduce gap between theme icon and status */
+    }
+
+    #connection-status {
+        font-size: 11px; /* Slightly smaller text */
+    }
+
+    #sidebar {
+        width: 240px; /* Make sidebar slightly narrower on very small phones */
+    }
+}

@@ -2,7 +2,7 @@
 .dash-layout {
     display: flex;
     flex: 1;
-    height: calc(100vh - 65px);
+    height: calc(100dvh - 65px);
     padding: 30px;
     gap: 30px;
     box-sizing: border-box;

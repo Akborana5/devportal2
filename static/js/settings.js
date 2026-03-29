@@ -97,11 +97,11 @@ async function saveSettings() {
             btn.innerText = "✓ Saved";
             setTimeout(() => btn.innerText = "Save Settings", 2000);
         } else {
-            alert("Failed to save settings.");
+            showToast("Failed to save settings.");
             btn.innerText = "Save Settings";
         }
     } catch (e) {
-        alert("Network error.");
+        showToast("Network error.");
         btn.innerText = "Save Settings";
     }
 }
