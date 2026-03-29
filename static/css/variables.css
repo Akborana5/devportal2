@@ -63,7 +63,7 @@ body {
     font-family: var(--font-ui);
     background-color: var(--bg-base);
     color: var(--text-primary);
-    height: 100vh;
+    height: 100dvh;
     overflow: hidden;
     display: flex;
     transition: background-color 0.3s ease, color 0.3s ease;

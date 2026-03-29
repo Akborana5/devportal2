@@ -2,7 +2,7 @@
 .editor-layout {
     display: flex;
     flex: 1;
-    height: calc(100vh - 65px);
+    height: calc(100dvh - 65px);
     padding: 20px;
     gap: 20px;
     box-sizing: border-box;
@@ -156,4 +156,47 @@
 .editor-btn.success:hover {
     background: var(--success-color);
     color: black;
+}
+
+/* Additional Mobile/Android Adjustments */
+@media (max-width: 768px) {
+    .editor-layout {
+        padding: 10px;
+        gap: 10px;
+        height: calc(100dvh - 65px); /* Ensure accurate dynamic viewport */
+        overflow-y: auto; /* Allow scrolling if things get too cramped */
+    }
+
+    .file-explorer {
+        height: 150px; /* Make it more compact on mobile */
+        min-height: 150px;
+    }
+
+    .editor-toolbar {
+        flex-wrap: wrap; /* Allow toolbar items to wrap on small screens */
+        height: auto;
+        padding: 8px;
+        gap: 5px;
+        justify-content: flex-start;
+    }
+
+    .filename-input {
+        width: 100%; /* Take full width on small screens */
+        margin-bottom: 5px;
+    }
+
+    .editor-btn {
+        padding: 6px 10px; /* Slightly smaller padding */
+        font-size: 11px;
+    }
+
+    .editor-split-container {
+        flex-direction: column; /* Stack editor and preview vertically on mobile */
+    }
+
+    #preview-container {
+        border-left: none;
+        border-top: var(--glass-border);
+        height: 50%; /* Give it half the space when visible */
+    }
 }

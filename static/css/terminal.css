@@ -2,7 +2,7 @@
 .terminal-layout {
     display: flex;
     flex: 1;
-    height: calc(100vh - 65px); /* Subtract top bar */
+    height: calc(100dvh - 65px); /* Subtract top bar */
     padding: 20px;
     gap: 20px;
     box-sizing: border-box;
