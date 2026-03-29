@@ -1,0 +1,24 @@
+name: Sync to HuggingFace
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Sync to HF
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "github-actions"
+
+          git remote add hf https://Ajitdoval:$HF_TOKEN@huggingface.co/spaces/Ajitdoval/devportal2
+
+          git push hf main --force
