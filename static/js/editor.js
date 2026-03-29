@@ -16,8 +16,20 @@ function initEditor() {
         enableBasicAutocompletion: true
     });
 
+    // Detect file type changes based on filename input
+    document.getElementById('current-filename').addEventListener('input', checkRunVisibility);
+
     // Load files immediately after init
     loadFiles();
+}
+
+function getIconForFile(filename) {
+    if (filename.endsWith('.py')) return '<i class="fa-brands fa-python" style="color: #4B8BBE;"></i>';
+    if (filename.endsWith('.js')) return '<i class="fa-brands fa-js" style="color: #F7DF1E;"></i>';
+    if (filename.endsWith('.html')) return '<i class="fa-brands fa-html5" style="color: #E34F26;"></i>';
+    if (filename.endsWith('.css')) return '<i class="fa-brands fa-css3-alt" style="color: #1572B6;"></i>';
+    if (filename.endsWith('.json')) return '<i class="fa-solid fa-code" style="color: #8BC34A;"></i>';
+    return '<i class="fa-solid fa-file-lines" style="color: var(--text-muted);"></i>';
 }
 
 async function loadFiles() {
@@ -40,7 +52,7 @@ async function loadFiles() {
             data.files.forEach(f => {
                 const div = document.createElement('div');
                 div.className = 'file-item';
-                div.innerHTML = `📄 ${f}`;
+                div.innerHTML = `${getIconForFile(f)} ${f}`;
                 div.onclick = () => openFile(f);
                 list.appendChild(div);
             });
@@ -53,16 +65,27 @@ async function loadFiles() {
 }
 
 function newFile() {
-    document.getElementById('current-filename').value = "untitled.txt";
+    document.getElementById('current-filename').value = "untitled.html";
+    checkRunVisibility();
     if(editor) {
-        editor.setValue("", -1);
-        editor.session.setMode("ace/mode/text");
+        editor.setValue("<!DOCTYPE html>\n<html>\n<head>\n  <title>New Page</title>\n</head>\n<body>\n  <h1>Hello World</h1>\n</body>\n</html>", -1);
+        editor.session.setMode("ace/mode/html");
         editor.focus();
     }
 }
 
 async function openFile(filename) {
     document.getElementById('current-filename').value = filename;
+    checkRunVisibility();
+
+    // Highlight active file in explorer
+    document.querySelectorAll('.file-item').forEach(el => {
+        el.classList.remove('active');
+        if (el.innerText.trim() === filename) {
+            el.classList.add('active');
+        }
+    });
+
     try {
         const res = await fetch('/api/file/read', { 
             method: 'POST', 
@@ -83,7 +106,7 @@ async function openFile(filename) {
             else editor.session.setMode("ace/mode/text");
         }
     } catch (e) {
-        alert("Network error reading file.");
+        showToast("Network error reading file.", "error");
     }
 }
 
@@ -92,12 +115,12 @@ async function saveFile() {
     const content = editor ? editor.getValue() : "";
     
     if(!filename) { 
-        alert("Please enter a filename"); 
+        showToast("Please enter a filename", "warning");
         return; 
     }
     
     const saveBtn = document.querySelector('.editor-btn.primary');
-    saveBtn.innerText = "Saving...";
+    saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
     
     try {
         const res = await fetch('/api/file/save', { 
@@ -108,16 +131,22 @@ async function saveFile() {
         const data = await res.json();
         
         if(data.success) {
-            saveBtn.innerText = "✓ Saved";
-            setTimeout(() => saveBtn.innerText = "💾 Save", 2000);
+            saveBtn.innerHTML = '<i class="fa-solid fa-check"></i> Saved';
+            showToast(`Saved ${filename}`, "success");
+            setTimeout(() => saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save', 2000);
             loadFiles(); // Refresh list just in case it's a new file
+
+            // Auto-refresh preview if open
+            if (document.getElementById('preview-container').style.display !== 'none') {
+                runCode();
+            }
         } else {
-            alert("Error saving: " + data.error);
-            saveBtn.innerText = "💾 Save";
+            showToast("Error saving: " + data.error, "error");
+            saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save';
         }
     } catch(e) {
-        alert("Network error while saving.");
-        saveBtn.innerText = "💾 Save";
+        showToast("Network error while saving.", "error");
+        saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save';
     }
 }
 
@@ -128,15 +157,22 @@ async function renameFile() {
     const oldName = document.getElementById('current-filename').value;
     
     try {
-        await fetch('/api/file/rename', { 
+        const res = await fetch('/api/file/rename', {
             method: 'POST', 
             headers: {'Content-Type': 'application/json'}, 
             body: JSON.stringify({token: currentToken, filename: oldName, new_name: newName}) 
         });
-        document.getElementById('current-filename').value = newName;
-        loadFiles();
+        const data = await res.json();
+        if (data.success) {
+            document.getElementById('current-filename').value = newName;
+            checkRunVisibility();
+            loadFiles();
+            showToast("File renamed successfully", "success");
+        } else {
+            showToast(data.error || "Failed to rename", "error");
+        }
     } catch (e) {
-        alert("Error renaming file.");
+        showToast("Error renaming file.", "error");
     }
 }
 
@@ -157,12 +193,52 @@ async function aiEdit() {
         
         if(data.code && !data.code.includes("NETWORK_ERROR")) {
             editor.setValue(data.code, -1);
+            showToast("AI Edit applied successfully", "success");
         } else {
             editor.setValue(originalCode, -1);
-            alert("AI Edit failed: \n" + (data.code || "Unknown error"));
+            showToast("AI Edit failed: \n" + (data.code || "Unknown error"), "error");
         }
     } catch(e) {
         editor.setValue(originalCode, -1);
-        alert("Network error during AI edit.");
+        showToast("Network error during AI edit.", "error");
     }
+}
+
+function checkRunVisibility() {
+    const filename = document.getElementById('current-filename').value;
+    const runBtn = document.getElementById('run-btn');
+    if (filename.endsWith('.html') || filename.endsWith('.js') || filename.endsWith('.css')) {
+        runBtn.style.display = 'inline-block';
+    } else {
+        runBtn.style.display = 'none';
+        closePreview();
+    }
+}
+
+function runCode() {
+    const content = editor.getValue();
+    const filename = document.getElementById('current-filename').value;
+    const previewContainer = document.getElementById('preview-container');
+    const iframe = document.getElementById('live-preview-frame');
+
+    previewContainer.style.display = 'block';
+
+    let htmlContent = content;
+
+    // If it's pure JS or CSS, wrap it in HTML to preview
+    if (filename.endsWith('.js')) {
+        htmlContent = `<!DOCTYPE html><html><body><script>${content}<\/script></body></html>`;
+    } else if (filename.endsWith('.css')) {
+        htmlContent = `<!DOCTYPE html><html><head><style>${content}</style></head><body><h1>CSS Preview</h1><p>This is a sample text to preview your CSS styles.</p></body></html>`;
+    }
+
+    // Write to iframe
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(htmlContent);
+    doc.close();
+}
+
+function closePreview() {
+    document.getElementById('preview-container').style.display = 'none';
 }

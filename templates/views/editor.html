@@ -1,28 +1,49 @@
 <div class="editor-layout">
     
+    <!-- Left: File Explorer -->
     <div class="file-explorer">
         <div class="explorer-header">
-            <span>EXPLORER</span>
-            <button class="editor-btn" onclick="newFile()" style="padding: 2px 6px;">+ New</button>
+            <span><i class="fa-solid fa-folder-tree"></i> EXPLORER</span>
+            <button class="editor-btn" onclick="newFile()" style="padding: 2px 6px;" title="New File"><i class="fa-solid fa-plus"></i></button>
         </div>
         <div id="file-list" class="file-list">
-            <div style="color: var(--text-muted); font-size: 12px; text-align: center; margin-top: 20px;">Loading files...</div>
+            <div style="color: var(--text-muted); font-size: 12px; text-align: center; margin-top: 20px;">
+                <i class="fa-solid fa-spinner fa-spin"></i> Loading files...
+            </div>
         </div>
     </div>
 
-    <div class="editor-main">
+    <!-- Center: Code Editor -->
+    <div class="editor-main" id="editor-main-container">
         <div class="editor-toolbar">
-            <input type="text" id="current-filename" class="filename-input" placeholder="untitled.py">
+            <input type="text" id="current-filename" class="filename-input" placeholder="untitled.html">
             
-            <button class="editor-btn" onclick="renameFile()">Rename</button>
-            <button class="editor-btn primary" onclick="saveFile()">💾 Save</button>
+            <button class="editor-btn" onclick="renameFile()" title="Rename File"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button class="editor-btn primary" onclick="saveFile()" title="Save File (Ctrl+S)"><i class="fa-solid fa-floppy-disk"></i> Save</button>
             
-            <div style="margin-left: auto; display: flex; gap: 10px;">
-                <button class="editor-btn ai" onclick="aiEdit()">✨ AI Edit</button>
+            <div style="margin-left: auto; display: flex; gap: 10px; align-items: center;">
+                <button id="run-btn" class="editor-btn success" onclick="runCode()" style="display: none;" title="Run HTML/JS in browser">
+                    <i class="fa-solid fa-play"></i> Run Output
+                </button>
+                <button class="editor-btn ai" onclick="aiEdit()" title="AI Edit">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> AI Edit
+                </button>
             </div>
         </div>
         
-        <div id="ace-editor"></div>
+        <div class="editor-split-container">
+            <!-- Ace Editor -->
+            <div id="ace-editor"></div>
+
+            <!-- Output iframe (hidden by default) -->
+            <div id="preview-container" style="display: none; flex: 1; border-left: var(--glass-border); background: #ffffff;">
+                <div style="background: var(--bg-surface); padding: 5px 10px; border-bottom: var(--glass-border); display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 12px; color: var(--text-secondary);"><i class="fa-brands fa-html5"></i> Live Preview</span>
+                    <button class="editor-btn" onclick="closePreview()" style="padding: 2px 8px;"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <iframe id="live-preview-frame" style="width: 100%; height: calc(100% - 30px); border: none; background: white;"></iframe>
+            </div>
+        </div>
     </div>
 
 </div>

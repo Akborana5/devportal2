@@ -12,7 +12,31 @@
     <link rel="stylesheet" href="/static/css/settings.css">
     <link rel="stylesheet" href="/static/css/dashboard.css">
 
+    <!-- FontAwesome for professional icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.3/ace.js"></script>
+    <style>
+        /* Smooth transitions for views */
+        .view-container {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .view-container.active {
+            opacity: 1;
+        }
+
+        /* Button Animations */
+        button {
+            transition: all 0.2s ease;
+        }
+        button:hover {
+            transform: translateY(-1px);
+        }
+        button:active {
+            transform: translateY(1px);
+        }
+    </style>
 </head>
 <body>
 
@@ -22,41 +46,49 @@
         
         <nav id="sidebar">
             <div class="logo-container">
-                <span style="color: var(--accent-main); font-size: 24px;">&lt;/&gt;</span>
+                <i class="fa-solid fa-code" style="color: var(--accent-main); font-size: 24px;"></i>
                 <span class="logo-text">DEV<span class="logo-accent">PORTAL</span></span>
             </div>
             
             <div class="nav-menu">
                 <div class="nav-item" onclick="switchView('dashboard-view', this)">
-                    📊 Home
+                    <i class="fa-solid fa-chart-line w-20"></i> Home
                 </div>
                 <div class="nav-item active" onclick="switchView('terminal-view', this)">
-                    💻 Terminal
+                    <i class="fa-solid fa-terminal w-20"></i> Terminal
                 </div>
                 <div class="nav-item" onclick="switchView('editor-view', this)">
-                    📝 Code Editor
+                    <i class="fa-solid fa-file-code w-20"></i> Code Editor
                 </div>
                 <div class="nav-item" onclick="switchView('projects-view', this)">
-                    📁 Projects
+                    <i class="fa-solid fa-folder-tree w-20"></i> Projects
                 </div>
             </div>
             
             <div class="nav-menu" style="border-top: var(--glass-border); padding-top: 15px; flex: none;">
                 <div class="nav-item" onclick="switchView('settings-view', this)">
-                    ⚙️ Settings
+                    <i class="fa-solid fa-gear w-20"></i> Settings
                 </div>
                 <div class="nav-item" onclick="logout()" style="color: var(--error-color);">
-                    🚪 Logout
+                    <i class="fa-solid fa-arrow-right-from-bracket w-20"></i> Logout
                 </div>
             </div>
         </nav>
 
         <main id="main-content">
             <header id="top-bar">
-                <button id="mobile-menu-btn" style="background:none; border:none; color:var(--text-primary); font-size:20px; cursor:pointer;" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
-                <div id="top-bar-right" style="display:flex; align-items:center; gap: 15px;">
-                    <span id="connection-status" style="color: var(--success-color); font-size: 12px; display:flex; align-items:center; gap:5px;">
-                        <div style="width:8px; height:8px; border-radius:50%; background:var(--success-color); box-shadow: 0 0 8px var(--success-color);"></div> Connected
+                <button id="mobile-menu-btn" style="background:none; border:none; color:var(--text-primary); font-size:20px; cursor:pointer;" onclick="document.getElementById('sidebar').classList.toggle('open')">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div id="top-bar-right" style="display:flex; align-items:center; gap: 20px;">
+                    <!-- Theme Toggle -->
+                    <button id="theme-toggle" onclick="toggleTheme()" style="background:none; border:none; color:var(--text-primary); cursor:pointer; font-size: 1.2rem;">
+                        <i id="theme-icon" class="fa-solid fa-moon"></i>
+                    </button>
+                    <!-- Connection Status -->
+                    <span id="connection-status" style="color: var(--error-color); font-size: 12px; display:flex; align-items:center; gap:6px; font-weight: 600;">
+                        <div id="connection-dot" style="width:10px; height:10px; border-radius:50%; background:var(--error-color); box-shadow: 0 0 8px var(--error-color);"></div>
+                        <span id="connection-text">Disconnected</span>
                     </span>
                 </div>
             </header>
@@ -73,7 +105,13 @@
                 {% include 'views/editor.html' %}
             </div>
 
-            <div id="projects-view" class="view-container"></div>
+            <div id="projects-view" class="view-container">
+                <div style="padding: 30px; text-align: center; color: var(--text-secondary);">
+                    <i class="fa-regular fa-folder-open" style="font-size: 4rem; color: var(--accent-main); opacity: 0.5; margin-bottom: 20px;"></i>
+                    <h2>Projects Module Coming Soon</h2>
+                    <p>Git integrations, branch management, and more.</p>
+                </div>
+            </div>
 
             <div id="settings-view" class="view-container">
                 {% include 'views/settings.html' %}
@@ -82,14 +120,14 @@
         </main>
     </div>
 
-    <script src="/static/js/app.js?v=2"></script>
-    <script src="/static/js/auth.js?v=2"></script>
-    <script src="/static/js/terminal.js?v=2"></script>
-    <script src="/static/js/editor.js?v=2"></script>
-    <script src="/static/js/settings.js?v=2"></script>
-    <script src="/static/js/dashboard.js?v=2"></script>
-</body>
-</html>
+    <!-- Toast Container -->
+    <div id="toast-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;"></div>
 
+    <script src="/static/js/app.js?v=3"></script>
+    <script src="/static/js/auth.js?v=3"></script>
+    <script src="/static/js/terminal.js?v=3"></script>
+    <script src="/static/js/editor.js?v=3"></script>
+    <script src="/static/js/settings.js?v=3"></script>
+    <script src="/static/js/dashboard.js?v=3"></script>
 </body>
 </html>

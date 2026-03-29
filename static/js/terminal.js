@@ -5,6 +5,29 @@ const frames = ["/", "-", "\\", "|"];
 let frameIdx = 0;
 let loaderInterval;
 
+function updateConnectionStatus(status) {
+    const dot = document.getElementById('connection-dot');
+    const text = document.getElementById('connection-text');
+    if (!dot || !text) return;
+
+    if (status === 'connected') {
+        dot.style.background = 'var(--success-color)';
+        dot.style.boxShadow = '0 0 8px var(--success-color)';
+        text.innerText = 'Connected';
+        text.style.color = 'var(--success-color)';
+    } else if (status === 'disconnected') {
+        dot.style.background = 'var(--error-color)';
+        dot.style.boxShadow = '0 0 8px var(--error-color)';
+        text.innerText = 'Disconnected';
+        text.style.color = 'var(--error-color)';
+    } else if (status === 'connecting') {
+        dot.style.background = 'var(--accent-main)';
+        dot.style.boxShadow = '0 0 8px var(--accent-main)';
+        text.innerText = 'Connecting...';
+        text.style.color = 'var(--accent-main)';
+    }
+}
+
 // ⚡ FIX: Force functions into global window scope
 window.initTerminal = function() {
     if (!currentToken) return;
@@ -13,7 +36,14 @@ window.initTerminal = function() {
     if(promptEl) promptEl.innerText = `${currentUser}@devportal:~$`;
 
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    updateConnectionStatus('connecting');
+
     ws = new WebSocket(`${wsProtocol}//${window.location.host}/ws/${currentToken}`);
+
+    ws.onopen = () => {
+        updateConnectionStatus('connected');
+        showToast("Terminal connected successfully", "success");
+    };
 
     ws.onmessage = (e) => {
         const data = JSON.parse(e.data);
@@ -48,6 +78,8 @@ window.initTerminal = function() {
     };
 
     ws.onclose = () => {
+        updateConnectionStatus('disconnected');
+        showToast("Terminal connection lost", "error");
         const out = document.getElementById('terminal-output');
         if(out) {
             const div = document.createElement('div');
@@ -55,6 +87,10 @@ window.initTerminal = function() {
             div.textContent = `[Connection Lost. Please refresh the page.]`;
             out.appendChild(div);
         }
+    };
+
+    ws.onerror = () => {
+        updateConnectionStatus('disconnected');
     };
 };
 
@@ -66,7 +102,7 @@ window.sendTerminalCommand = function() {
     if (!cmd) return;
 
     if (!ws || ws.readyState !== WebSocket.OPEN) {
-        alert("Terminal disconnected. Please refresh the page.");
+        showToast("Terminal disconnected. Please refresh the page.", "error");
         return;
     }
 
