@@ -29,8 +29,10 @@ WORKDIR $HOME/app
 USER user
 RUN python3 -m pip install --upgrade pip
 
-COPY --chown=user:user . .
+COPY --chown=user:user requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
+
+COPY --chown=user:user . .
 
 RUN mkdir -p user_spaces && chmod -R 777 user_spaces
 RUN chmod +x start.sh
