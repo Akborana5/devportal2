@@ -155,3 +155,79 @@ form.terminal-input-area {
     outline: none;
     height: 100%; /* Fill the area */
 }
+/* Termux Keys Row */
+.termux-keys-row {
+    display: none; /* Hide on desktop by default */
+    background: rgba(15, 15, 15, 0.9);
+    border-bottom: var(--glass-border);
+    padding: 6px;
+    gap: 6px;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.termux-key {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    transition: 0.1s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.termux-key:active {
+    background: var(--accent-main);
+    color: #000;
+}
+
+/* Show termux row and hide sidebar on mobile */
+@media (max-width: 768px) {
+    .termux-keys-row {
+        display: flex;
+    }
+
+    .terminal-sidebar {
+        display: none; /* Hide AI sidebar to maximize terminal space on mobile */
+    }
+
+    .terminal-layout {
+        flex-direction: column;
+    }
+
+    .terminal-main {
+        height: 100%;
+    }
+}
+
+/* Theme Overrides for Light Mode Backgrounds in Terminal */
+:root.light-theme .terminal-main {
+    background: rgba(255, 255, 255, 0.9);
+}
+:root.light-theme .terminal-header {
+    background: rgba(240, 240, 245, 0.8);
+}
+:root.light-theme .terminal-input-area {
+    background: rgba(240, 240, 245, 0.8);
+}
+:root.light-theme #terminal-input {
+    color: var(--text-primary);
+}
+:root.light-theme .term-msg.output {
+    color: var(--text-secondary);
+}
+:root.light-theme .glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+}
+:root.light-theme .termux-keys-row {
+    background: rgba(240, 240, 245, 0.9);
+}
+:root.light-theme .termux-key {
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: var(--text-primary);
+}

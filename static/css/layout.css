@@ -127,3 +127,17 @@
         width: 240px; /* Make sidebar slightly narrower on very small phones */
     }
 }
+
+/* Theme Overrides for Light Mode Backgrounds */
+:root.light-theme #main-content {
+    background: radial-gradient(circle at top right, rgba(0, 102, 204, 0.05), transparent 40%);
+}
+:root.light-theme #top-bar {
+    background: rgba(255, 255, 255, 0.8);
+}
+:root.light-theme .nav-item:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+:root.light-theme .nav-item.active {
+    background: rgba(0, 102, 204, 0.1);
+}

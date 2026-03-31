@@ -119,3 +119,35 @@ function showToast(message, type = 'info') {
 window.alert = function(msg) {
     showToast(msg, 'info');
 };
+
+// Fix app.js toggleTheme to sync with settings page
+window.toggleTheme = function() {
+    const root = document.documentElement;
+    const isLight = root.classList.toggle('light-theme');
+    const themeIcon = document.getElementById('theme-icon');
+
+    if (isLight) {
+        localStorage.setItem('theme', 'light');
+        if (themeIcon) {
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        }
+    } else {
+        localStorage.setItem('theme', 'dark');
+        if (themeIcon) {
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
+    }
+
+    // Refresh ace editors if they exist
+    if (typeof editor !== 'undefined' && editor) {
+        editor.setTheme(isLight ? "ace/theme/github" : "ace/theme/tomorrow_night_eighties");
+    }
+
+    // Sync settings dropdown if it exists
+    const settingsSelect = document.getElementById('setting-theme-mode');
+    if (settingsSelect) {
+        settingsSelect.value = isLight ? 'light' : 'dark';
+    }
+}

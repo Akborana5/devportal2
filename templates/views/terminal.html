@@ -6,38 +6,39 @@
             <div class="term-tab" style="padding: 5px 10px;">+</div>
             
             <div style="margin-left: auto; display: flex; gap: 10px;">
-                <button class="term-tab" onclick="document.getElementById('terminal-output').innerHTML=''">🗑️ Clear</button>
+                <button class="term-tab" onclick="document.getElementById('terminal-output').innerHTML=''"><i class="fa-solid fa-trash"></i> Clear</button>
             </div>
         </div>
         
         <div id="terminal-output" class="terminal-body">
             </div>
         
+        <!-- Mobile/Termux Extra Keys Row -->
+        <div class="termux-keys-row">
+            <button type="button" class="termux-key" onclick="sendTerminalKey('ESC')">ESC</button>
+            <button type="button" class="termux-key" onclick="sendTerminalKey('TAB')">TAB</button>
+            <button type="button" class="termux-key" onclick="sendTerminalKey('CTRL+C')">CTRL+C</button>
+            <button type="button" class="termux-key" onclick="sendTerminalKey('CTRL+Z')">CTRL+Z</button>
+            <button type="button" class="termux-key" onclick="sendTerminalKey('UP')">↑</button>
+            <button type="button" class="termux-key" onclick="sendTerminalKey('DOWN')">↓</button>
+        </div>
+
         <form id="terminal-form" class="terminal-input-area" onsubmit="event.preventDefault(); sendTerminalCommand();">
             <span id="prompt-text">user@devportal:~$</span>
             <input type="text" id="terminal-input" autocomplete="off" spellcheck="false" placeholder="Type command or 'ai <request>'">
-            <button type="submit" id="terminal-send-btn" class="editor-btn primary">Send 🚀</button>
+            <button type="submit" id="terminal-send-btn" class="editor-btn primary" title="Send Command"><i class="fa-solid fa-paper-plane"></i></button>
         </form>
     </div>
 
     <div class="terminal-sidebar">
         
-        <div class="glass-panel" style="flex: 2;">
-            <h3 class="panel-title">🤖 AI Assistant</h3>
+        <div class="glass-panel" style="flex: 2; height: 100%;">
+            <h3 class="panel-title"><i class="fa-solid fa-robot"></i> AI Assistant</h3>
             <div id="ai-mini-chat" style="flex: 1; overflow-y: auto; margin-bottom: 10px; font-size: 13px; color: var(--text-secondary);">
                 <em>Run an AI command in the terminal to see analysis here.</em>
             </div>
             <div id="ai-loader" style="display: none; color: var(--accent-main); font-size: 12px; font-family: var(--font-mono);">
                 [ <span id="spinner">/</span> ] Processing...
-            </div>
-        </div>
-
-        <div class="glass-panel" style="flex: 1;">
-            <h3 class="panel-title">⚡ Quick Commands</h3>
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-                <button class="term-tab" style="text-align: left;" onclick="insertCmd('ls -la')">📂 List Files (ls -la)</button>
-                <button class="term-tab" style="text-align: left;" onclick="insertCmd('htop')">📊 System Monitor (htop)</button>
-                <button class="term-tab" style="text-align: left;" onclick="insertCmd('python3 --version')">🐍 Check Python Version</button>
             </div>
         </div>
         
