@@ -2,10 +2,10 @@
     
     <div class="settings-sidebar">
         <h3 style="padding: 0 16px; font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Settings</h3>
-        <div class="settings-tab active" onclick="switchSettingsPanel('panel-profile', this)">👤 Profile</div>
-        <div class="settings-tab" onclick="switchSettingsPanel('panel-appearance', this)">🎨 Appearance</div>
-        <div class="settings-tab" onclick="switchSettingsPanel('panel-editor', this)">⌨️ Editor Settings</div>
-        <div class="settings-tab" onclick="switchSettingsPanel('panel-terminal', this)">💻 Terminal Settings</div>
+        <div class="settings-tab active" onclick="switchSettingsPanel('panel-profile', this)"><i class="fa-solid fa-user"></i> Profile</div>
+        <div class="settings-tab" onclick="switchSettingsPanel('panel-appearance', this)"><i class="fa-solid fa-palette"></i> Appearance</div>
+        <div class="settings-tab" onclick="switchSettingsPanel('panel-editor', this)"><i class="fa-solid fa-keyboard"></i> Editor Settings</div>
+        <div class="settings-tab" onclick="switchSettingsPanel('panel-terminal', this)"><i class="fa-solid fa-terminal"></i> Terminal Settings</div>
     </div>
 
     <div class="settings-content-wrapper">
@@ -20,7 +20,7 @@
                     </div>
                 </div>
             </div>
-            <button class="editor-btn primary" onclick="alert('Profile updates coming in v2!')">Update Profile</button>
+            <button class="editor-btn primary" onclick="showToast('Profile updates coming in v2!', 'info')">Update Profile</button>
         </div>
 
         <div id="panel-appearance" class="settings-section">
@@ -44,6 +44,12 @@
                     <input type="color" id="custom-accent-color" value="#ffc107" style="background: none; border: none; cursor: pointer; width: 30px; height: 30px; padding: 0;" onchange="setAccentColor(this.value, null)">
                 </div>
             </div>
+
+            <div class="setting-group">
+                <label>Custom Background Image URL</label>
+                <input type="text" id="setting-bg-url" class="setting-input" placeholder="https://example.com/wallpaper.jpg" oninput="previewSettings()">
+                <p style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">Leave blank to use default background.</p>
+            </div>
         </div>
 
         <div id="panel-editor" class="settings-section">
@@ -56,6 +62,7 @@
                     <option value="14px" selected>14px</option>
                     <option value="16px">16px</option>
                     <option value="18px">18px</option>
+                    <option value="20px">20px</option>
                 </select>
             </div>
 
@@ -65,6 +72,16 @@
                     <option value="'Fira Code', monospace" selected>Fira Code</option>
                     <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
                     <option value="'Consolas', monospace">Consolas</option>
+                    <option value="'Courier New', Courier, monospace">Courier New</option>
+                    <option value="'Monaco', 'Menlo', 'Ubuntu Mono', monospace">Monaco / Menlo</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label>Code Minimap</label>
+                <select id="setting-editor-minimap" class="setting-select" onchange="previewSettings()">
+                    <option value="false">Hidden (Default)</option>
+                    <option value="true">Visible</option>
                 </select>
             </div>
         </div>
@@ -77,6 +94,7 @@
                     <option value="13px">13px</option>
                     <option value="14px" selected>14px</option>
                     <option value="16px">16px</option>
+                    <option value="18px">18px</option>
                 </select>
             </div>
         </div>

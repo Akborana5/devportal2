@@ -54,4 +54,18 @@ async def rename_file(data: FileReq):
     if not old_path.startswith(user_dir) or not new_path.startswith(user_dir): return {"error": "Access denied"}
     os.rename(old_path, new_path)
     return {"success": True}
-    
+
+from fastapi.responses import FileResponse
+from fastapi import Request
+
+@router.get("/preview/{token}/{file_path:path}")
+async def serve_preview_file(token: str, file_path: str):
+    user_dir = get_user_dir(token)
+    if not user_dir:
+        return {"error": "Unauthorized"}
+
+    full_path = os.path.abspath(os.path.join(user_dir, file_path))
+    if not full_path.startswith(user_dir) or not os.path.exists(full_path):
+        return {"error": "Not found"}
+
+    return FileResponse(full_path)

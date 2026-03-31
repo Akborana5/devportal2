@@ -1,5 +1,3 @@
-// static/js/editor.js
-
 let editor;
 
 function initEditor() {
@@ -215,30 +213,52 @@ function checkRunVisibility() {
     }
 }
 
-function runCode() {
-    const content = editor.getValue();
+async function runCode() {
     const filename = document.getElementById('current-filename').value;
     const previewContainer = document.getElementById('preview-container');
     const iframe = document.getElementById('live-preview-frame');
 
+    // Make sure we save the latest changes before running so the backend API serves the fresh file
+    await saveFile();
+
     previewContainer.style.display = 'block';
 
-    let htmlContent = content;
+    if (filename.endsWith('.html')) {
+        // Serve through our new endpoint so relative css/js imports work correctly
+        iframe.src = `/preview/${currentToken}/${filename}`;
+    } else if (filename.endsWith('.js') || filename.endsWith('.css')) {
+        // If it's pure JS or CSS, wrap it in a dummy HTML to preview
+        const content = editor.getValue();
+        let htmlContent = '';
+        if (filename.endsWith('.js')) {
+            htmlContent = `<!DOCTYPE html><html><body><script>${content}<\/script></body></html>`;
+        } else if (filename.endsWith('.css')) {
+            htmlContent = `<!DOCTYPE html><html><head><style>${content}</style></head><body><h1>CSS Preview</h1><p>This is a sample text to preview your CSS styles.</p></body></html>`;
+        }
 
-    // If it's pure JS or CSS, wrap it in HTML to preview
-    if (filename.endsWith('.js')) {
-        htmlContent = `<!DOCTYPE html><html><body><script>${content}<\/script></body></html>`;
-    } else if (filename.endsWith('.css')) {
-        htmlContent = `<!DOCTYPE html><html><head><style>${content}</style></head><body><h1>CSS Preview</h1><p>This is a sample text to preview your CSS styles.</p></body></html>`;
+        iframe.removeAttribute('src');
+        const doc = iframe.contentWindow.document;
+        doc.open();
+        doc.write(htmlContent);
+        doc.close();
     }
-
-    // Write to iframe
-    const doc = iframe.contentWindow.document;
-    doc.open();
-    doc.write(htmlContent);
-    doc.close();
 }
 
 function closePreview() {
     document.getElementById('preview-container').style.display = 'none';
+}
+
+function toggleFullScreenPreview() {
+    const container = document.getElementById('preview-container');
+    const icon = document.getElementById('fullscreen-icon');
+
+    if (container.classList.contains('fullscreen-preview')) {
+        container.classList.remove('fullscreen-preview');
+        icon.classList.remove('fa-compress');
+        icon.classList.add('fa-expand');
+    } else {
+        container.classList.add('fullscreen-preview');
+        icon.classList.remove('fa-expand');
+        icon.classList.add('fa-compress');
+    }
 }

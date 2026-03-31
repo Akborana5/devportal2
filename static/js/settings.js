@@ -36,36 +36,52 @@ function previewSettings() {
     
     // 2. Apply Theme (Light/Dark)
     const theme = document.getElementById('setting-theme-mode').value;
-    if (theme === 'light') {
-        document.documentElement.style.setProperty('--bg-base', '#f5f5f5');
-        document.documentElement.style.setProperty('--bg-surface', '#ffffff');
-        document.documentElement.style.setProperty('--text-primary', '#111111');
-        document.documentElement.style.setProperty('--text-secondary', '#555555');
-        document.documentElement.style.setProperty('--glass-border', '1px solid rgba(0,0,0,0.1)');
-        document.documentElement.style.setProperty('--panel-bg', 'rgba(255,255,255,0.8)');
+    const isLight = (theme === 'light');
+
+    if (isLight) {
+        document.documentElement.classList.add('light-theme');
+        localStorage.setItem('theme', 'light');
+        const themeIcon = document.getElementById('theme-icon');
+        if (themeIcon) {
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        }
     } else {
-        // Revert to Dark
-        document.documentElement.style.setProperty('--bg-base', '#050505');
-        document.documentElement.style.setProperty('--bg-surface', '#0a0a0a');
-        document.documentElement.style.setProperty('--text-primary', '#ffffff');
-        document.documentElement.style.setProperty('--text-secondary', '#a0a0a0');
-        document.documentElement.style.setProperty('--glass-border', '1px solid rgba(255, 255, 255, 0.05)');
-        document.documentElement.style.setProperty('--panel-bg', 'rgba(20, 20, 20, 0.6)');
+        document.documentElement.classList.remove('light-theme');
+        localStorage.setItem('theme', 'dark');
+        const themeIcon = document.getElementById('theme-icon');
+        if (themeIcon) {
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
     }
 
-    // 3. Apply Editor Settings
+    // 3. Apply Custom Background Image
+    const bgUrl = document.getElementById('setting-bg-url').value.trim();
+    if (bgUrl) {
+        document.body.style.backgroundImage = `url('${bgUrl}')`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+    } else {
+        document.body.style.backgroundImage = 'none';
+    }
+
+    // 4. Apply Editor Settings
     const editorFont = document.getElementById('setting-editor-font').value;
     const editorSize = document.getElementById('setting-editor-font-size').value;
+    const showMinimap = document.getElementById('setting-editor-minimap').value === "true";
     document.documentElement.style.setProperty('--font-mono', editorFont);
     
     if (typeof editor !== 'undefined' && editor) {
         editor.setOptions({
             fontFamily: editorFont,
-            fontSize: editorSize
+            fontSize: editorSize,
+            showPrintMargin: showMinimap
         });
+        editor.setTheme(isLight ? "ace/theme/github" : "ace/theme/tomorrow_night_eighties");
     }
 
-    // 4. Apply Terminal Settings
+    // 5. Apply Terminal Settings
     const termSize = document.getElementById('setting-terminal-font-size').value;
     const termOutput = document.getElementById('terminal-output');
     if (termOutput) {
@@ -75,13 +91,18 @@ function previewSettings() {
 
 async function saveSettings() {
     const btn = document.getElementById('save-settings-btn');
-    btn.innerText = "Saving...";
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
     
+    // Apply them immediately
+    previewSettings();
+
     const settingsData = {
         theme: document.getElementById('setting-theme-mode').value,
         accent: currentAccentColor,
+        bgUrl: document.getElementById('setting-bg-url').value,
         editorFont: document.getElementById('setting-editor-font').value,
         editorSize: document.getElementById('setting-editor-font-size').value,
+        editorMinimap: document.getElementById('setting-editor-minimap').value,
         termSize: document.getElementById('setting-terminal-font-size').value
     };
 
@@ -94,15 +115,16 @@ async function saveSettings() {
         
         const data = await res.json();
         if(data.success) {
-            btn.innerText = "✓ Saved";
-            setTimeout(() => btn.innerText = "Save Settings", 2000);
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Saved';
+            showToast("Settings saved successfully", "success");
+            setTimeout(() => btn.innerHTML = "Save Settings", 2000);
         } else {
-            showToast("Failed to save settings.");
-            btn.innerText = "Save Settings";
+            showToast("Failed to save settings.", "error");
+            btn.innerHTML = "Save Settings";
         }
     } catch (e) {
-        showToast("Network error.");
-        btn.innerText = "Save Settings";
+        showToast("Network error.", "error");
+        btn.innerHTML = "Save Settings";
     }
 }
 
@@ -116,7 +138,11 @@ async function loadSettings() {
     if(usernameInput) usernameInput.value = currentUser;
     if(avatar) avatar.innerText = currentUser.charAt(0).toUpperCase();
 
-    // In a full app, we would fetch the user's specific settings from the DB here via a GET route.
-    // For now, we apply the default UI state so everything looks perfect immediately.
+    // Check localStorage for theme to sync the select box
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.getElementById('setting-theme-mode').value = savedTheme;
+    }
+
     previewSettings();
 }

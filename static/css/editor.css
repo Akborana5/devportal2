@@ -200,3 +200,43 @@
         height: 50%; /* Give it half the space when visible */
     }
 }
+
+/* Fullscreen Preview */
+#preview-container.fullscreen-preview {
+    position: fixed;
+    top: 65px;
+    left: 0;
+    width: 100vw;
+    height: calc(100dvh - 65px);
+    z-index: 9999;
+    border: none;
+    box-shadow: 0 0 50px rgba(0,0,0,0.8);
+}
+
+/* Theme Overrides for Light Mode Backgrounds in Editor */
+:root.light-theme .file-explorer {
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--text-primary);
+}
+:root.light-theme .explorer-header {
+    background: rgba(0, 0, 0, 0.05);
+}
+:root.light-theme .editor-main {
+    background: rgba(255, 255, 255, 0.9);
+}
+:root.light-theme .editor-toolbar {
+    background: rgba(240, 240, 245, 0.8);
+}
+:root.light-theme .filename-input {
+    background: #fff;
+    color: #000;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+:root.light-theme .editor-btn {
+    border: 1px solid rgba(0,0,0,0.1);
+    color: var(--text-secondary);
+}
+:root.light-theme .editor-btn:hover {
+    background: rgba(0,0,0,0.05);
+    color: var(--text-primary);
+}
