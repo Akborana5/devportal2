@@ -16,6 +16,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.3/ace.js"></script>
+    <!-- Markdown and Code Highlighting for AI Chat -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <style>
         /* Smooth transitions for views */
         .view-container {
@@ -63,6 +68,9 @@
                 <div class="nav-item" onclick="switchView('projects-view', this)">
                     <i class="fa-solid fa-folder-tree w-20"></i> Projects
                 </div>
+                <div class="nav-item" onclick="switchView('ai-chat-view', this)">
+                    <i class="fa-solid fa-brain w-20" style="color: var(--accent-main);"></i> AI Chat
+                </div>
             </div>
             
             <div class="nav-menu" style="border-top: var(--glass-border); padding-top: 15px; flex: none;">
@@ -106,11 +114,11 @@
             </div>
 
             <div id="projects-view" class="view-container">
-                <div style="padding: 30px; text-align: center; color: var(--text-secondary);">
-                    <i class="fa-regular fa-folder-open" style="font-size: 4rem; color: var(--accent-main); opacity: 0.5; margin-bottom: 20px;"></i>
-                    <h2>Projects Module Coming Soon</h2>
-                    <p>Git integrations, branch management, and more.</p>
-                </div>
+                {% include 'views/projects.html' %}
+            </div>
+
+            <div id="ai-chat-view" class="view-container">
+                {% include 'views/ai_chat.html' %}
             </div>
 
             <div id="settings-view" class="view-container">
@@ -123,11 +131,12 @@
     <!-- Toast Container -->
     <div id="toast-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;"></div>
 
-    <script src="/static/js/app.js?v=3"></script>
-    <script src="/static/js/auth.js?v=3"></script>
-    <script src="/static/js/terminal.js?v=3"></script>
-    <script src="/static/js/editor.js?v=3"></script>
-    <script src="/static/js/settings.js?v=3"></script>
-    <script src="/static/js/dashboard.js?v=3"></script>
+    <script src="/static/js/app.js?v=4"></script>
+    <script src="/static/js/auth.js?v=4"></script>
+    <script src="/static/js/terminal.js?v=4"></script>
+    <script src="/static/js/editor.js?v=4"></script>
+    <script src="/static/js/settings.js?v=4"></script>
+    <script src="/static/js/dashboard.js?v=4"></script>
+    <script src="/static/js/projects.js?v=4"></script>
 </body>
 </html>
