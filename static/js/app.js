@@ -182,7 +182,8 @@ async function sendChatMessage() {
         message: msg,
         history: aiChatHistory,
         model: settings.aiModel,
-        api_key: settings.aiKey,
+        openrouter_key: settings.openrouterKey,
+        nvidia_key: settings.nvidiaKey,
         system_prompt: settings.aiPrompt
     };
 

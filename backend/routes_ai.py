@@ -10,7 +10,10 @@ from fastapi.responses import StreamingResponse
 router = APIRouter()
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
-API_URL = "https://" + "openrouter.ai/api/v1/chat/completions"
+NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "")
+
+OPENROUTER_URL = "https://" + "openrouter.ai/api/v1/chat/completions"
+NVIDIA_URL = "https://" + "integrate.api.nvidia.com/v1/chat/completions"
 REFERER_URL = "https://" + "huggingface.co/"
 
 @router.post("/api/ai_edit")
@@ -25,14 +28,14 @@ async def ai_edit(data: dict):
     try:
         headers = {"Authorization": f"Bearer {OPENROUTER_API_KEY}", "HTTP-Referer": REFERER_URL}
         async with httpx.AsyncClient(trust_env=False) as client:
-            res = await client.post(API_URL, headers=headers, json=payload, timeout=60.0)
+            res = await client.post(OPENROUTER_URL, headers=headers, json=payload, timeout=60.0)
             if res.status_code != 200:
                 return {"code": f"# API_ERROR: {res.text}"}
             new_code = res.json()['choices'][0]['message']['content']
     except Exception as httpx_err:
         try:
             cmd = [
-                "curl", "--noproxy", "*", "-s", "-X", "POST", API_URL,
+                "curl", "--noproxy", "*", "-s", "-X", "POST", OPENROUTER_URL,
                 "-H", f"Authorization: Bearer {OPENROUTER_API_KEY}",
                 "-H", "Content-Type: application/json",
                 "-H", f"HTTP-Referer: {REFERER_URL}",
@@ -57,14 +60,14 @@ async def ask_openrouter(messages) -> str:
     try:
         headers = {"Authorization": f"Bearer {OPENROUTER_API_KEY}", "HTTP-Referer": REFERER_URL}
         async with httpx.AsyncClient(trust_env=False) as client:
-            response = await client.post(API_URL, headers=headers, json=data, timeout=45.0)
+            response = await client.post(OPENROUTER_URL, headers=headers, json=data, timeout=45.0)
             if response.status_code != 200: return f"API_ERROR: {response.text}"
             return response.json()['choices'][0]['message']['content']
     except Exception as e:
         httpx_error = str(e)
         try:
             cmd = [
-                "curl", "--noproxy", "*", "-s", "-X", "POST", API_URL,
+                "curl", "--noproxy", "*", "-s", "-X", "POST", OPENROUTER_URL,
                 "-H", f"Authorization: Bearer {OPENROUTER_API_KEY}",
                 "-H", "Content-Type: application/json",
                 "-H", f"HTTP-Referer: {REFERER_URL}",
@@ -85,13 +88,24 @@ async def chat_with_ai(data: dict):
     token = data.get("token")
     user_msg = data.get("message")
     history = data.get("history", [])
-    model = data.get("model", "nvidia/llama3-chatqa-1.5-8b")
-    user_key = data.get("api_key", "").strip()
+    model = data.get("model", "openrouter/auto")
+    openrouter_key = data.get("openrouter_key", "").strip()
+    nvidia_key = data.get("nvidia_key", "").strip()
     sys_prompt = data.get("system_prompt", "You are a helpful coding assistant.")
 
-    # Priority: User Key -> Env OPENROUTER_API_KEY -> Env NVIDIA_API_KEY
-    api_key = user_key if user_key else OPENROUTER_API_KEY
-    base_url = API_URL
+    # Determine which API URL and Key to use based on the selected model
+    is_nvidia_model = model.startswith("meta/llama3") or model == "nvidia/llama3-chatqa-1.5-8b"
+
+    if is_nvidia_model:
+        api_key = nvidia_key if nvidia_key else NVIDIA_API_KEY
+        base_url = NVIDIA_URL
+        if not api_key:
+            # Fallback to OpenRouter if no NVIDIA key exists but they requested an open model
+            api_key = openrouter_key if openrouter_key else OPENROUTER_API_KEY
+            base_url = OPENROUTER_URL
+    else:
+        api_key = openrouter_key if openrouter_key else OPENROUTER_API_KEY
+        base_url = OPENROUTER_URL
 
     if not api_key:
         async def err_stream(): yield "Error: No API Key provided in Settings or Environment."

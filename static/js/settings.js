@@ -104,7 +104,8 @@ async function saveSettings() {
         editorSize: document.getElementById('setting-editor-font-size').value,
         editorMinimap: document.getElementById('setting-editor-minimap').value,
         termSize: document.getElementById('setting-terminal-font-size').value,
-        aiKey: document.getElementById('setting-ai-key').value,
+        openrouterKey: document.getElementById('setting-openrouter-key').value,
+        nvidiaKey: document.getElementById('setting-nvidia-key').value,
         aiModel: document.getElementById('setting-ai-model').value,
         aiPrompt: document.getElementById('setting-ai-prompt').value
     };
