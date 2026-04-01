@@ -1,7 +1,11 @@
 import os
-from fastapi import APIRouter
+import shutil
+import uuid
+import sqlite3
+from fastapi import APIRouter, Request
+from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel
-from backend.database import get_user_dir
+from backend.database import get_user_dir, get_username, DB_FILE, PUBLISHED_DIR
 
 router = APIRouter()
 
@@ -55,30 +59,23 @@ async def rename_file(data: FileReq):
     os.rename(old_path, new_path)
     return {"success": True}
 
-from fastapi.responses import FileResponse
-from fastapi import Request
-
 @router.get("/preview/{token}/{file_path:path}")
 async def serve_preview_file(token: str, file_path: str):
     user_dir = get_user_dir(token)
     if not user_dir:
-        return {"error": "Unauthorized"}
+        return HTMLResponse("<h1>Unauthorized</h1>", status_code=401)
 
     full_path = os.path.abspath(os.path.join(user_dir, file_path))
     if not full_path.startswith(user_dir) or not os.path.exists(full_path):
-        return {"error": "Not found"}
+        return HTMLResponse("<h1>File Not Found</h1><p>Please create an 'index.html' file first to view the live preview.</p>", status_code=404)
 
     return FileResponse(full_path)
-
-import shutil
-import uuid
-import sqlite3
-from backend.database import DB_FILE, PUBLISHED_DIR, get_username
-from fastapi.responses import HTMLResponse
 
 class PublishReq(BaseModel):
     token: str
     project_name: str
+    project_id: str = None  # if updating
+    files: list = []        # list of selected files
 
 @router.post("/api/publish")
 async def publish_project(data: PublishReq):
@@ -87,34 +84,54 @@ async def publish_project(data: PublishReq):
     if not user_dir or not username:
         return {"error": "Unauthorized"}
 
-    if not os.path.exists(os.path.join(user_dir, "index.html")):
-        return {"error": "No index.html found. A project must have an index.html file to be published."}
+    if not data.files:
+        return {"error": "No files selected to publish."}
 
-    # Generate unique ID
-    project_id = str(uuid.uuid4())[:8] # short unique id
+    # Verify all selected files exist in the user's workspace securely
+    for f in data.files:
+        p = os.path.abspath(os.path.join(user_dir, f))
+        if not p.startswith(user_dir) or not os.path.isfile(p):
+            return {"error": f"File '{f}' not found or invalid."}
 
-    # Check if this name already exists for this user to update it instead of creating new
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
-    c.execute("SELECT id FROM projects WHERE username=? AND name=?", (username, data.project_name))
-    existing = c.fetchone()
 
-    if existing:
-        project_id = existing[0]
-        # Delete old published files
+    project_id = data.project_id
+    pub_path = ""
+
+    # If the user is explicitly updating a project via the UI button
+    if project_id:
+        # Verify ownership
+        c.execute("SELECT id FROM projects WHERE username=? AND id=?", (username, project_id))
+        if not c.fetchone():
+            conn.close()
+            return {"error": "Project not found or you don't have permission."}
+
         pub_path = os.path.join(PUBLISHED_DIR, project_id)
+        # We wipe the old directory to ensure files that were un-ticked are actually removed from the published site
         if os.path.exists(pub_path):
             shutil.rmtree(pub_path)
+
+        c.execute("UPDATE projects SET name=?, created_at=CURRENT_TIMESTAMP WHERE id=?", (data.project_name, project_id))
+
     else:
-        # Insert new project record
+        # Creating a brand new project record
+        project_id = str(uuid.uuid4())[:8] # short unique id
+        pub_path = os.path.join(PUBLISHED_DIR, project_id)
         c.execute("INSERT INTO projects (id, username, name) VALUES (?, ?, ?)", (project_id, username, data.project_name))
 
     conn.commit()
     conn.close()
 
-    # Copy files
-    pub_path = os.path.join(PUBLISHED_DIR, project_id)
-    shutil.copytree(user_dir, pub_path)
+    # Create empty directory
+    os.makedirs(pub_path, exist_ok=True)
+
+    # Selectively copy ONLY the files requested by the user
+    for f in data.files:
+        src = os.path.join(user_dir, f)
+        dst = os.path.join(pub_path, f)
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        shutil.copy2(src, dst)
 
     return {"success": True, "project_id": project_id, "url": f"/p/{project_id}/index.html"}
 
@@ -130,6 +147,32 @@ async def list_published_projects(data: dict):
     conn.close()
 
     return {"projects": [{"id": p[0], "name": p[1], "created_at": p[2], "url": f"/p/{p[0]}/index.html"} for p in projects]}
+
+@router.post("/api/project/files")
+async def list_project_files(data: dict):
+    username = get_username(data.get("token"))
+    project_id = data.get("project_id")
+    if not username or not project_id: return {"error": "Unauthorized"}
+
+    # Verify ownership
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("SELECT id FROM projects WHERE username=? AND id=?", (username, project_id))
+    if not c.fetchone():
+        conn.close()
+        return {"error": "Project not found"}
+    conn.close()
+
+    pub_path = os.path.join(PUBLISHED_DIR, project_id)
+    if not os.path.exists(pub_path):
+        return {"files": []}
+
+    files = []
+    for root, _, filenames in os.walk(pub_path):
+        for f in filenames:
+            rel_dir = os.path.relpath(root, pub_path)
+            files.append(f if rel_dir == "." else f"{rel_dir}/{f}")
+    return {"files": files}
 
 @router.get("/p/{project_id}/{file_path:path}")
 async def serve_published_file(project_id: str, file_path: str):

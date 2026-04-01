@@ -102,19 +102,35 @@
 
         <div id="panel-ai" class="settings-section">
             <h2 class="settings-title">AI Settings</h2>
+
             <div class="setting-group">
-                <label>Provider API Key (Optional)</label>
-                <input type="password" id="setting-ai-key" class="setting-input" placeholder="sk-or-v1-xxxxxxxx">
-                <p style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">Leave blank to use Devportal's default NVIDIA/OpenRouter keys.</p>
+                <label>OpenRouter API Key</label>
+                <input type="password" id="setting-openrouter-key" class="setting-input" placeholder="sk-or-v1-xxxxxxxx">
             </div>
+
+            <div class="setting-group">
+                <label>NVIDIA NIM API Key</label>
+                <input type="password" id="setting-nvidia-key" class="setting-input" placeholder="nvapi-xxxxxxxx">
+                <p style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">Leave blank to use Devportal's default keys stored in the environment.</p>
+            </div>
+
             <div class="setting-group">
                 <label>AI Model</label>
                 <select id="setting-ai-model" class="setting-select" onchange="updateAIModelBadge()">
-                    <option value="nvidia/llama3-chatqa-1.5-8b" selected>NVIDIA Llama3 8B (Free)</option>
-                    <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
-                    <option value="anthropic/claude-3-haiku">Claude 3 Haiku</option>
+                    <optgroup label="OpenRouter Models">
+                        <option value="openrouter/auto" selected>OpenRouter Auto (Default)</option>
+                        <option value="deepseek/deepseek-chat">DeepSeek V3 Chat</option>
+                        <option value="deepseek/deepseek-coder">DeepSeek V3 Coder</option>
+                        <option value="zhipu/glm-4">GLM-4</option>
+                        <option value="moonshotai/moonshot-v1-8k">Kimi Instruct (Moonshot 8k)</option>
+                    </optgroup>
+                    <optgroup label="NVIDIA NIM Models">
+                        <option value="meta/llama3-8b-instruct">NVIDIA Llama3 8B Instruct</option>
+                        <option value="meta/llama3-70b-instruct">NVIDIA Llama3 70B Instruct</option>
+                    </optgroup>
                 </select>
             </div>
+
             <div class="setting-group">
                 <label>System Prompt</label>
                 <textarea id="setting-ai-prompt" class="setting-input" style="height: 80px; resize: vertical;" placeholder="You are a helpful coding assistant..."></textarea>
