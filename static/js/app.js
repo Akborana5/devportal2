@@ -1,4 +1,3 @@
-// static/js/app.js
 function switchView(viewId, navItem) {
     // Hide all views
     document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
@@ -11,31 +10,44 @@ function switchView(viewId, navItem) {
         navItem.classList.add('active');
 
         // Close mobile sidebar
+        // Load projects if switching to projects view
+        if (viewId === 'projects-view') loadPublishedProjects();
+
         if(window.innerWidth <= 768) {
              document.getElementById('sidebar').classList.remove('open');
         }
     }
 }
 
-// Theme toggling logic
-function toggleTheme() {
+// Fix app.js toggleTheme to sync with settings page
+window.toggleTheme = function() {
     const root = document.documentElement;
     const isLight = root.classList.toggle('light-theme');
     const themeIcon = document.getElementById('theme-icon');
     
     if (isLight) {
         localStorage.setItem('theme', 'light');
-        themeIcon.classList.remove('fa-moon');
-        themeIcon.classList.add('fa-sun');
+        if (themeIcon) {
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        }
     } else {
         localStorage.setItem('theme', 'dark');
-        themeIcon.classList.remove('fa-sun');
-        themeIcon.classList.add('fa-moon');
+        if (themeIcon) {
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
     }
 
     // Refresh ace editors if they exist
-    if (window.editor) {
-        window.editor.setTheme(isLight ? "ace/theme/github" : "ace/theme/monokai");
+    if (typeof editor !== 'undefined' && editor) {
+        editor.setTheme(isLight ? "ace/theme/github" : "ace/theme/tomorrow_night_eighties");
+    }
+
+    // Sync settings dropdown if it exists
+    const settingsSelect = document.getElementById('setting-theme-mode');
+    if (settingsSelect) {
+        settingsSelect.value = isLight ? 'light' : 'dark';
     }
 }
 
@@ -54,6 +66,21 @@ function loadTheme() {
 // Initialize things on load
 document.addEventListener('DOMContentLoaded', () => {
     loadTheme();
+
+    // Configure marked.js if available
+    if (typeof marked !== 'undefined') {
+        marked.setOptions({
+            highlight: function(code, lang) {
+                if (typeof hljs !== 'undefined') {
+                    const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+                    return hljs.highlight(code, { language }).value;
+                }
+                return code;
+            },
+            breaks: true,
+            gfm: true
+        });
+    }
 });
 
 // Universal Toast System
@@ -120,34 +147,110 @@ window.alert = function(msg) {
     showToast(msg, 'info');
 };
 
-// Fix app.js toggleTheme to sync with settings page
-window.toggleTheme = function() {
-    const root = document.documentElement;
-    const isLight = root.classList.toggle('light-theme');
-    const themeIcon = document.getElementById('theme-icon');
+// AI Chatbot Logic
+let aiChatHistory = [];
 
-    if (isLight) {
-        localStorage.setItem('theme', 'light');
-        if (themeIcon) {
-            themeIcon.classList.remove('fa-moon');
-            themeIcon.classList.add('fa-sun');
-        }
-    } else {
-        localStorage.setItem('theme', 'dark');
-        if (themeIcon) {
-            themeIcon.classList.remove('fa-sun');
-            themeIcon.classList.add('fa-moon');
-        }
+async function sendChatMessage() {
+    const inputEl = document.getElementById('ai-chat-input');
+    const msg = inputEl.value.trim();
+    if (!msg || !currentToken) return;
+
+    inputEl.value = '';
+
+    // Add user message to UI (Not markdown parsed)
+    appendChatMsg('user', msg);
+
+    // Create assistant bubble placeholder
+    const bubbleId = 'ai-msg-' + Date.now();
+    appendChatMsg('system', '<i class="fa-solid fa-spinner fa-spin"></i> Thinking...', bubbleId);
+
+    // Get settings
+    const settingsReq = await fetch('/api/settings/get', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({token: currentToken})
+    }).catch(() => ({}));
+
+    let settings = {};
+    if (settingsReq.ok) {
+        const res = await settingsReq.json();
+        if (res.settings) settings = res.settings;
     }
 
-    // Refresh ace editors if they exist
-    if (typeof editor !== 'undefined' && editor) {
-        editor.setTheme(isLight ? "ace/theme/github" : "ace/theme/tomorrow_night_eighties");
-    }
+    const payload = {
+        token: currentToken,
+        message: msg,
+        history: aiChatHistory,
+        model: settings.aiModel,
+        api_key: settings.aiKey,
+        system_prompt: settings.aiPrompt
+    };
 
-    // Sync settings dropdown if it exists
-    const settingsSelect = document.getElementById('setting-theme-mode');
-    if (settingsSelect) {
-        settingsSelect.value = isLight ? 'light' : 'dark';
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const bubble = document.getElementById(bubbleId);
+
+        // Handle streaming response
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullReply = "";
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value, { stream: true });
+            fullReply += chunk;
+
+            // Render markdown to HTML safely
+            let rawHtml = marked.parse(fullReply);
+            bubble.innerHTML = DOMPurify.sanitize(rawHtml);
+
+            // Scroll to bottom
+            const historyDiv = document.getElementById('ai-chat-history');
+            historyDiv.scrollTop = historyDiv.scrollHeight;
+        }
+
+        // Save to history
+        aiChatHistory.push({role: "user", content: msg});
+        aiChatHistory.push({role: "assistant", content: fullReply});
+
+    } catch (e) {
+        document.getElementById(bubbleId).innerHTML = '<span style="color:var(--error-color)">Error reaching AI: ' + e.message + '</span>';
+    }
+}
+
+function appendChatMsg(role, content, bubbleId = '') {
+    const historyDiv = document.getElementById('ai-chat-history');
+    const wrapper = document.createElement('div');
+    wrapper.className = `chat-msg ${role}`;
+
+    const avatar = role === 'user'
+        ? `<div class="chat-avatar" style="background: var(--text-secondary); color: #000;"><i class="fa-solid fa-user"></i></div>`
+        : `<div class="chat-avatar" style="background: var(--accent-main); color: #000;"><i class="fa-solid fa-robot"></i></div>`;
+
+    wrapper.innerHTML = `
+        ${avatar}
+        <div class="chat-bubble markdown-body" ${bubbleId ? `id="${bubbleId}"` : ''}>
+            ${content}
+        </div>
+    `;
+    historyDiv.appendChild(wrapper);
+    historyDiv.scrollTop = historyDiv.scrollHeight;
+}
+
+function handleChatInput(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendChatMessage();
     }
 }

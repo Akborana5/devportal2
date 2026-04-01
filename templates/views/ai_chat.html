@@ -1,0 +1,101 @@
+<div class="ai-chat-layout" style="display: flex; flex-direction: column; height: calc(100dvh - 65px); padding: 20px; box-sizing: border-box; gap: 20px;">
+
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: var(--glass-border); padding-bottom: 15px;">
+        <h2 style="margin: 0; color: var(--text-primary);"><i class="fa-solid fa-sparkles" style="color: var(--accent-main);"></i> AI Assistant</h2>
+        <div style="font-size: 12px; color: var(--text-secondary); background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 4px; border: var(--glass-border);">
+            Model: <span id="current-ai-model" style="color: var(--accent-main);">default</span>
+        </div>
+    </div>
+
+    <!-- Chat History -->
+    <div id="ai-chat-history" style="flex: 1; overflow-y: auto; background: rgba(10, 10, 12, 0.9); border: var(--glass-border); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+
+        <div class="chat-msg system">
+            <div class="chat-avatar" style="background: var(--accent-main); color: #000;"><i class="fa-solid fa-robot"></i></div>
+            <div class="chat-bubble" style="background: rgba(255, 193, 7, 0.1); border-left: 3px solid var(--accent-main);">
+                Hello! I am your AI coding assistant. How can I help you build today?
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Input Area -->
+    <div style="background: rgba(20, 20, 25, 0.8); border: var(--glass-border); border-radius: 12px; padding: 15px; display: flex; gap: 10px; align-items: center;">
+        <textarea id="ai-chat-input" placeholder="Ask a coding question... (Shift+Enter for new line)" style="flex: 1; background: transparent; border: none; color: white; font-family: var(--font-ui); font-size: 14px; outline: none; resize: none; min-height: 20px; max-height: 150px; overflow-y: auto;" onkeydown="handleChatInput(event)"></textarea>
+        <button class="editor-btn primary" onclick="sendChatMessage()" style="height: 40px; width: 40px; border-radius: 50%; padding: 0; display: flex; justify-content: center; align-items: center;">
+            <i class="fa-solid fa-paper-plane"></i>
+        </button>
+    </div>
+
+</div>
+
+<style>
+/* AI Chat Styles */
+.chat-msg {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    animation: fadeIn 0.3s ease;
+}
+
+.chat-msg.user {
+    flex-direction: row-reverse;
+}
+
+.chat-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.chat-bubble {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 12px 18px;
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.5;
+    max-width: 80%;
+    word-break: break-word;
+}
+
+.chat-msg.user .chat-bubble {
+    background: rgba(0, 102, 204, 0.2);
+    border-right: 3px solid #0066cc;
+}
+
+/* Markdown Formatting */
+.chat-bubble pre {
+    background: #1e1e1e !important;
+    padding: 12px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 10px 0;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.chat-bubble code {
+    font-family: var(--font-mono);
+    font-size: 13px;
+}
+
+/* Light Theme Overrides */
+:root.light-theme #ai-chat-history {
+    background: rgba(255, 255, 255, 0.9);
+}
+:root.light-theme .chat-bubble {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-primary);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>

@@ -146,26 +146,57 @@ window.insertCmd = function(cmd) {
     }
 };
 
+let ctrlActive = false;
+
+window.toggleTermuxCtrl = function() {
+    ctrlActive = !ctrlActive;
+    const btn = document.getElementById('termux-ctrl-btn');
+    if (ctrlActive) {
+        btn.style.background = 'var(--accent-main)';
+        btn.style.color = '#000';
+    } else {
+        btn.style.background = 'rgba(255,193,7,0.1)';
+        btn.style.color = 'var(--text-primary)';
+    }
+    document.getElementById('terminal-input').focus();
+};
+
+document.getElementById('terminal-input').addEventListener('keydown', function(e) {
+    if (ctrlActive && e.key.length === 1) {
+        // e.key is the letter pressed, e.g., 'c'
+        const letter = e.key.toUpperCase();
+
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            // For Ctrl+C, send \x03
+            if (letter === 'C') {
+                ws.send(JSON.stringify({ command: '\x03' }));
+                showToast("Sent Ctrl+C", "info");
+            }
+            // For Ctrl+Z, send \x1a
+            else if (letter === 'Z') {
+                ws.send(JSON.stringify({ command: '\x1a' }));
+                showToast("Sent Ctrl+Z", "info");
+            }
+            // Add other standard mappings if needed
+            else {
+                 showToast(`Sent Ctrl+${letter}`, "info");
+            }
+        }
+
+        e.preventDefault(); // Stop the letter from typing
+        toggleTermuxCtrl(); // Turn off Ctrl after one use
+    }
+});
+
 window.sendTerminalKey = function(key) {
     const input = document.getElementById('terminal-input');
     if (!input) return;
 
     if (key === 'ESC') {
-        input.value += '\\e'; // Approximation of escape sequence for bash if handled backend
+        input.value += '\\e';
     } else if (key === 'TAB') {
         input.value += '\\t';
-    } else if (key === 'CTRL+C') {
-        if (ws && ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ command: '\x03' })); // Send SIGINT char
-            showToast("Sent Ctrl+C", "info");
-        }
-    } else if (key === 'CTRL+Z') {
-        if (ws && ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ command: '\x1a' })); // Send SIGTSTP char
-            showToast("Sent Ctrl+Z", "info");
-        }
     } else if (key === 'UP') {
-         // Would need bash history implemented on client or server
          showToast("Arrow keys not fully supported in this interface yet.", "warning");
     } else if (key === 'DOWN') {
          showToast("Arrow keys not fully supported in this interface yet.", "warning");

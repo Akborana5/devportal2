@@ -3,7 +3,9 @@ import json
 import re
 import httpx
 import subprocess
+import asyncio
 from fastapi import APIRouter
+from fastapi.responses import StreamingResponse
 
 router = APIRouter()
 
@@ -77,4 +79,47 @@ async def ask_openrouter(messages) -> str:
             return res_json['choices'][0]['message']['content']
         except Exception as curl_e:
             return f"FATAL_NETWORK_ERROR\nHTTPX Error: {httpx_error}\nCURL Error: {str(curl_e)}"
-            
+
+@router.post("/api/chat")
+async def chat_with_ai(data: dict):
+    token = data.get("token")
+    user_msg = data.get("message")
+    history = data.get("history", [])
+    model = data.get("model", "nvidia/llama3-chatqa-1.5-8b")
+    user_key = data.get("api_key", "").strip()
+    sys_prompt = data.get("system_prompt", "You are a helpful coding assistant.")
+
+    # Priority: User Key -> Env OPENROUTER_API_KEY -> Env NVIDIA_API_KEY
+    api_key = user_key if user_key else OPENROUTER_API_KEY
+    base_url = API_URL
+
+    if not api_key:
+        async def err_stream(): yield "Error: No API Key provided in Settings or Environment."
+        return StreamingResponse(err_stream(), media_type="text/plain")
+
+    messages = [{"role": "system", "content": sys_prompt}] + history + [{"role": "user", "content": user_msg}]
+    payload = {"model": model, "messages": messages, "stream": True}
+
+    async def stream_generator():
+        headers = {"Authorization": f"Bearer {api_key}", "HTTP-Referer": REFERER_URL}
+        try:
+            async with httpx.AsyncClient(trust_env=False) as client:
+                async with client.stream("POST", base_url, headers=headers, json=payload, timeout=60.0) as response:
+                    if response.status_code != 200:
+                        err = await response.aread()
+                        yield f"API Error: {err.decode('utf-8')}"
+                        return
+
+                    async for line in response.aiter_lines():
+                        if line.startswith("data: ") and line != "data: [DONE]":
+                            try:
+                                data_chunk = json.loads(line[6:])
+                                content = data_chunk.get("choices", [{}])[0].get("delta", {}).get("content", "")
+                                if content:
+                                    yield content
+                            except json.JSONDecodeError:
+                                pass
+        except Exception as e:
+            yield f"\n\n**Network Error:** {str(e)}"
+
+    return StreamingResponse(stream_generator(), media_type="text/plain")

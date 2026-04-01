@@ -103,7 +103,10 @@ async function saveSettings() {
         editorFont: document.getElementById('setting-editor-font').value,
         editorSize: document.getElementById('setting-editor-font-size').value,
         editorMinimap: document.getElementById('setting-editor-minimap').value,
-        termSize: document.getElementById('setting-terminal-font-size').value
+        termSize: document.getElementById('setting-terminal-font-size').value,
+        aiKey: document.getElementById('setting-ai-key').value,
+        aiModel: document.getElementById('setting-ai-model').value,
+        aiPrompt: document.getElementById('setting-ai-prompt').value
     };
 
     try {
@@ -145,4 +148,12 @@ async function loadSettings() {
     }
 
     previewSettings();
+}
+
+function updateAIModelBadge() {
+    const el = document.getElementById('setting-ai-model');
+    const badge = document.getElementById('current-ai-model');
+    if(el && badge) {
+        badge.innerText = el.options[el.selectedIndex].text;
+    }
 }

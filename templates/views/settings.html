@@ -6,6 +6,7 @@
         <div class="settings-tab" onclick="switchSettingsPanel('panel-appearance', this)"><i class="fa-solid fa-palette"></i> Appearance</div>
         <div class="settings-tab" onclick="switchSettingsPanel('panel-editor', this)"><i class="fa-solid fa-keyboard"></i> Editor Settings</div>
         <div class="settings-tab" onclick="switchSettingsPanel('panel-terminal', this)"><i class="fa-solid fa-terminal"></i> Terminal Settings</div>
+        <div class="settings-tab" onclick="switchSettingsPanel('panel-ai', this)"><i class="fa-solid fa-brain"></i> AI Settings</div>
     </div>
 
     <div class="settings-content-wrapper">
@@ -96,6 +97,27 @@
                     <option value="16px">16px</option>
                     <option value="18px">18px</option>
                 </select>
+            </div>
+        </div>
+
+        <div id="panel-ai" class="settings-section">
+            <h2 class="settings-title">AI Settings</h2>
+            <div class="setting-group">
+                <label>Provider API Key (Optional)</label>
+                <input type="password" id="setting-ai-key" class="setting-input" placeholder="sk-or-v1-xxxxxxxx">
+                <p style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">Leave blank to use Devportal's default NVIDIA/OpenRouter keys.</p>
+            </div>
+            <div class="setting-group">
+                <label>AI Model</label>
+                <select id="setting-ai-model" class="setting-select" onchange="updateAIModelBadge()">
+                    <option value="nvidia/llama3-chatqa-1.5-8b" selected>NVIDIA Llama3 8B (Free)</option>
+                    <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
+                    <option value="anthropic/claude-3-haiku">Claude 3 Haiku</option>
+                </select>
+            </div>
+            <div class="setting-group">
+                <label>System Prompt</label>
+                <textarea id="setting-ai-prompt" class="setting-input" style="height: 80px; resize: vertical;" placeholder="You are a helpful coding assistant..."></textarea>
             </div>
         </div>
 
