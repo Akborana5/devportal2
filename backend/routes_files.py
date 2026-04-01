@@ -74,7 +74,7 @@ async def serve_preview_file(token: str, file_path: str):
 class PublishReq(BaseModel):
     token: str
     project_name: str
-    project_id: str = None  # if updating
+    project_id: str | None = None  # if updating
     files: list = []        # list of selected files
 
 @router.post("/api/publish")
