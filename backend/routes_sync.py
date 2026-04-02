@@ -19,13 +19,32 @@ async def sync_huggingface(data: SyncReq):
     # `hf sync ./data hf://buckets/Ajitdoval/devportal2-storage`
 
     try:
-        # Check if huggingface-cli is available
-        result = subprocess.run(["huggingface-cli", "upload", "Ajitdoval/devportal2-storage", "./data", ".", "--repo-type", "dataset"], capture_output=True, text=True, timeout=120)
+        from huggingface_hub import HfApi
 
-        if result.returncode == 0:
-            return {"success": True, "message": "Successfully synced to HuggingFace Datasets."}
-        else:
-            return {"error": f"Sync failed: {result.stderr}"}
+        token = os.environ.get("HF_TOKEN")
+        if not token:
+            return {"error": "HF_TOKEN environment variable is not set. Please add it to your Space secrets."}
+
+        api = HfApi(token=token)
+
+        # Ensure the repo exists (creates it if it doesn't)
+        api.create_repo(
+            repo_id="Ajitdoval/devportal2-storage",
+            repo_type="dataset",
+            exist_ok=True
+        )
+
+        # Upload the data folder
+        api.upload_folder(
+            folder_path="./data",
+            repo_id="Ajitdoval/devportal2-storage",
+            repo_type="dataset",
+            commit_message="Sync Devportal2 Data"
+        )
+
+        return {"success": True, "message": "Successfully synced to HuggingFace Datasets."}
+    except ImportError:
+        return {"error": "huggingface_hub package is not installed."}
     except Exception as e:
         return {"error": f"Failed to execute sync command: {str(e)}"}
 
