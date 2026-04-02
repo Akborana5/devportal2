@@ -50,7 +50,7 @@ async function loadFiles() {
             data.files.forEach(f => {
                 const div = document.createElement('div');
                 div.className = 'file-item';
-                div.innerHTML = `${getIconForFile(f)} ${f}`;
+                div.innerHTML = `${getIconForFile(f)} <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${f}</span> <button class="file-item-delete" title="Delete" onclick="deleteFile(event, '${f}')"><i class="fa-solid fa-trash"></i></button>`;
                 div.onclick = () => openFile(f);
                 list.appendChild(div);
             });
@@ -260,5 +260,82 @@ function toggleFullScreenPreview() {
         container.classList.add('fullscreen-preview');
         icon.classList.remove('fa-expand');
         icon.classList.add('fa-compress');
+    }
+}
+
+async function deleteFile(e, filename) {
+    e.stopPropagation(); // Don't trigger the row click
+    if (!confirm(`Are you sure you want to delete ${filename}?`)) return;
+
+    try {
+        const res = await fetch('/api/file/delete', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({token: currentToken, filename: filename})
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            showToast(`Deleted ${filename}`, "success");
+            if (document.getElementById('current-filename').value === filename) {
+                document.getElementById('current-filename').value = '';
+                editor.setValue('', -1);
+                checkRunVisibility();
+            }
+            loadFiles();
+        } else {
+            showToast(`Failed to delete: ${data.error}`, "error");
+        }
+    } catch(err) {
+        showToast("Network error while deleting.", "error");
+    }
+}
+
+async function createFolder() {
+    const folderName = prompt("Enter new folder name (e.g. 'src' or 'src/components'):");
+    if (!folderName) return;
+
+    try {
+        const res = await fetch('/api/folder/create', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({token: currentToken, filename: folderName})
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            showToast(`Created folder ${folderName}`, "success");
+            loadFiles();
+        } else {
+            showToast(`Failed to create folder: ${data.error}`, "error");
+        }
+    } catch(err) {
+        showToast("Network error while creating folder.", "error");
+    }
+}
+
+
+async function deleteFolder() {
+    const folderName = prompt("Enter folder path to delete (e.g. 'src/components'):");
+    if (!folderName) return;
+
+    if (!confirm(`Are you absolutely sure you want to delete the folder '${folderName}' AND all of its contents?`)) return;
+
+    try {
+        const res = await fetch('/api/folder/delete', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({token: currentToken, filename: folderName})
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            showToast(`Deleted folder ${folderName}`, "success");
+            loadFiles();
+        } else {
+            showToast(`Failed to delete folder: ${data.error}`, "error");
+        }
+    } catch(err) {
+        showToast("Network error while deleting folder.", "error");
     }
 }

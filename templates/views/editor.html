@@ -4,7 +4,7 @@
     <div class="file-explorer">
         <div class="explorer-header">
             <span><i class="fa-solid fa-folder-tree"></i> EXPLORER</span>
-            <button class="editor-btn" onclick="newFile()" style="padding: 2px 6px;" title="New File"><i class="fa-solid fa-plus"></i></button>
+            <div style="display:flex; gap:3px;"><button class="editor-btn" onclick="newFile()" style="padding: 2px 6px;" title="New File"><i class="fa-solid fa-file-circle-plus"></i></button><button class="editor-btn" onclick="createFolder()" style="padding: 2px 6px;" title="New Folder"><i class="fa-solid fa-folder-plus"></i></button><button class="editor-btn error" onclick="deleteFolder()" style="padding: 2px 6px; margin-left:10px;" title="Delete Folder"><i class="fa-solid fa-folder-minus"></i></button></div>
         </div>
         <div id="file-list" class="file-list">
             <div style="color: var(--text-muted); font-size: 12px; text-align: center; margin-top: 20px;">

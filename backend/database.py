@@ -1,11 +1,15 @@
 import sqlite3
 import os
 
-DB_FILE = "devportal.db"
-USERS_DIR = "user_spaces"
-PUBLISHED_DIR = "published_projects"
+DATA_DIR = "data"
+DB_FILE = os.path.join(DATA_DIR, "devportal.db")
+USERS_DIR = os.path.join(DATA_DIR, "user_spaces")
+PUBLISHED_DIR = os.path.join(DATA_DIR, "published_projects")
 
 def init_db():
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR)
+
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     # Create users table
@@ -15,6 +19,10 @@ def init_db():
     # Create published projects table
     c.execute('''CREATE TABLE IF NOT EXISTS projects
                  (id TEXT PRIMARY KEY, username TEXT, name TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+
+    # Create AI history table
+    c.execute('''CREATE TABLE IF NOT EXISTS ai_history
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, role TEXT, content TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)''')
 
     conn.commit()
     conn.close()

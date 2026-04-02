@@ -101,6 +101,8 @@ async function publishCurrentWorkspace(existingName = null, existingId = null) {
         }
 
         fileListDiv.innerHTML = '';
+        let primaryHtmlFile = null;
+
         if (wsData.files && wsData.files.length > 0) {
             wsData.files.forEach(f => {
                 const label = document.createElement('label');
@@ -110,6 +112,11 @@ async function publishCurrentWorkspace(existingName = null, existingId = null) {
                 checkbox.type = 'checkbox';
                 checkbox.value = f;
                 checkbox.className = 'publish-file-checkbox';
+
+                // Track primary HTML file for preview
+                if (f.endsWith('.html') && (!primaryHtmlFile || f === 'index.html')) {
+                    primaryHtmlFile = f;
+                }
 
                 // If it's a new project, check all by default.
                 // If it's an update, check only the ones that were published before.
@@ -125,13 +132,19 @@ async function publishCurrentWorkspace(existingName = null, existingId = null) {
             fileListDiv.innerHTML = '<span style="color: var(--error-color);">Workspace is empty. Add files in Code Editor.</span>';
         }
 
+        // Set up live preview to use the dynamically found HTML file
+        const iframe = document.getElementById('publish-preview-frame');
+        if (primaryHtmlFile) {
+            iframe.src = `/preview/${currentToken}/${primaryHtmlFile}`;
+            document.querySelector('#publish-modal .fa-html5').nextSibling.textContent = ` Live Preview (${primaryHtmlFile})`;
+        } else {
+            iframe.src = 'about:blank';
+            document.querySelector('#publish-modal .fa-html5').nextSibling.textContent = ` Live Preview (No HTML Found)`;
+        }
+
     } catch (e) {
         fileListDiv.innerHTML = '<span style="color: var(--error-color);">Failed to load files.</span>';
     }
-
-    // Set up live preview
-    const iframe = document.getElementById('publish-preview-frame');
-    iframe.src = `/preview/${currentToken}/index.html`; // Will return 404 naturally if not there
 }
 
 function closePublishModal() {
@@ -154,9 +167,15 @@ async function confirmPublish() {
         return;
     }
 
-    if (!selectedFiles.includes('index.html')) {
-        const proceed = confirm("Warning: You did not select an 'index.html' file. The site will not work correctly when visited. Publish anyway?");
+    let mainHtmlFile = null;
+    const htmlFiles = selectedFiles.filter(f => f.endsWith('.html'));
+
+    if (htmlFiles.length === 0) {
+        const proceed = confirm("Warning: You did not select any HTML files. The published link may not display anything visually. Publish anyway?");
         if(!proceed) return;
+    } else {
+        // Prefer index.html if selected, otherwise just pick the first html file
+        mainHtmlFile = htmlFiles.includes('index.html') ? 'index.html' : htmlFiles[0];
     }
 
     const btn = document.getElementById('publish-confirm-btn');
@@ -170,8 +189,9 @@ async function confirmPublish() {
             body: JSON.stringify({
                 token: currentToken,
                 project_name: nameInput,
-                project_id: publishingProjectID, // If this is an update, tell the backend
-                files: selectedFiles // The exact files to copy
+                project_id: publishingProjectID,
+                files: selectedFiles,
+                main_html_file: mainHtmlFile
             })
         });
         const data = await res.json();

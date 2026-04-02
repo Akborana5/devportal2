@@ -3,7 +3,8 @@
     <!-- Header -->
     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: var(--glass-border); padding-bottom: 15px;">
         <h2 style="margin: 0; color: var(--text-primary);"><i class="fa-solid fa-sparkles" style="color: var(--accent-main);"></i> AI Assistant</h2>
-        <div style="font-size: 12px; color: var(--text-secondary); background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 4px; border: var(--glass-border);">
+        <button class="editor-btn error" style="margin-right:10px; font-size:12px; padding:4px 8px;" onclick="clearAIChatHistory()"><i class="fa-solid fa-trash"></i> New Chat</button>
+        <div style="font-size: 12px; color: var(--text-secondary); background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 4px; border: var(--glass-border); display:inline-block;">
             Model: <span id="current-ai-model" style="color: var(--accent-main);">default</span>
         </div>
     </div>

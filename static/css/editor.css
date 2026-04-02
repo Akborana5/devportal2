@@ -240,3 +240,30 @@
     background: rgba(0,0,0,0.05);
     color: var(--text-primary);
 }
+
+/* File Item Actions */
+.file-item {
+    position: relative;
+    padding-right: 30px; /* Room for delete button */
+}
+
+.file-item-delete {
+    display: none;
+    position: absolute;
+    right: 8px;
+    background: transparent;
+    border: none;
+    color: var(--error-color);
+    cursor: pointer;
+    font-size: 11px;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+.file-item:hover .file-item-delete {
+    display: inline-block;
+}
+
+.file-item-delete:hover {
+    background: rgba(255, 51, 102, 0.2);
+}
