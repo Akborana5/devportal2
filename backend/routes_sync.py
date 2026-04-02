@@ -70,7 +70,9 @@ async def import_github(data: ImportReq):
         if os.path.exists(tmp_dir):
             shutil.rmtree(tmp_dir)
 
-        result = subprocess.run(["git", "clone", data.github_url, tmp_dir], capture_output=True, text=True, timeout=60)
+        env = os.environ.copy()
+        env["GIT_TERMINAL_PROMPT"] = "0"
+        result = subprocess.run(["git", "clone", data.github_url, tmp_dir], capture_output=True, text=True, timeout=60, env=env)
 
         if result.returncode != 0:
             return {"error": f"Failed to clone: {result.stderr}"}
