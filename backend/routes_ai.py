@@ -6,6 +6,8 @@ import subprocess
 import asyncio
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
+from backend.database import get_username, DB_FILE
+import sqlite3
 
 router = APIRouter()
 
@@ -124,16 +126,56 @@ async def chat_with_ai(data: dict):
                         yield f"API Error: {err.decode('utf-8')}"
                         return
 
+                    full_reply = ""
                     async for line in response.aiter_lines():
                         if line.startswith("data: ") and line != "data: [DONE]":
                             try:
                                 data_chunk = json.loads(line[6:])
-                                content = data_chunk.get("choices", [{}])[0].get("delta", {}).get("content", "")
-                                if content:
-                                    yield content
+                                content_chunk = data_chunk.get("choices", [{}])[0].get("delta", {}).get("content", "")
+                                if content_chunk:
+                                    full_reply += content_chunk
+                                    yield content_chunk
                             except json.JSONDecodeError:
                                 pass
+
+                    # After successful stream, save to DB
+                    if full_reply:
+                        from backend.database import get_username
+                        username = get_username(token)
+                        if username:
+                            conn = sqlite3.connect(DB_FILE)
+                            c = conn.cursor()
+                            c.execute("INSERT INTO ai_history (username, role, content) VALUES (?, ?, ?)", (username, 'user', user_msg))
+                            c.execute("INSERT INTO ai_history (username, role, content) VALUES (?, ?, ?)", (username, 'assistant', full_reply))
+                            conn.commit()
+                            conn.close()
+
         except Exception as e:
             yield f"\n\n**Network Error:** {str(e)}"
-
     return StreamingResponse(stream_generator(), media_type="text/plain")
+
+@router.post("/api/chat/history")
+async def get_chat_history(data: dict):
+    username = get_username(data.get("token"))
+    if not username: return {"error": "Unauthorized"}
+
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("SELECT role, content FROM ai_history WHERE username=? ORDER BY timestamp ASC", (username,))
+    history = [{"role": row[0], "content": row[1]} for row in c.fetchall()]
+    conn.close()
+
+    return {"history": history}
+
+@router.post("/api/chat/history/clear")
+async def clear_chat_history(data: dict):
+    username = get_username(data.get("token"))
+    if not username: return {"error": "Unauthorized"}
+
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("DELETE FROM ai_history WHERE username=?", (username,))
+    conn.commit()
+    conn.close()
+
+    return {"success": True}

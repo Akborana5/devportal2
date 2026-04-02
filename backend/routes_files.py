@@ -59,6 +59,42 @@ async def rename_file(data: FileReq):
     os.rename(old_path, new_path)
     return {"success": True}
 
+@router.post("/api/file/delete")
+async def delete_file(data: FileReq):
+    user_dir = get_user_dir(data.token)
+    if not user_dir: return {"error": "Unauthorized"}
+    filepath = os.path.abspath(os.path.join(user_dir, data.filename))
+    if not filepath.startswith(user_dir): return {"error": "Access denied"}
+    try:
+        os.remove(filepath)
+        return {"success": True}
+    except Exception as e:
+        return {"error": str(e)}
+
+@router.post("/api/folder/create")
+async def create_folder(data: FileReq):
+    user_dir = get_user_dir(data.token)
+    if not user_dir: return {"error": "Unauthorized"}
+    folderpath = os.path.abspath(os.path.join(user_dir, data.filename))
+    if not folderpath.startswith(user_dir): return {"error": "Access denied"}
+    try:
+        os.makedirs(folderpath, exist_ok=True)
+        return {"success": True}
+    except Exception as e:
+        return {"error": str(e)}
+
+@router.post("/api/folder/delete")
+async def delete_folder(data: FileReq):
+    user_dir = get_user_dir(data.token)
+    if not user_dir: return {"error": "Unauthorized"}
+    folderpath = os.path.abspath(os.path.join(user_dir, data.filename))
+    if not folderpath.startswith(user_dir): return {"error": "Access denied"}
+    try:
+        shutil.rmtree(folderpath)
+        return {"success": True}
+    except Exception as e:
+        return {"error": str(e)}
+
 @router.get("/preview/{token}/{file_path:path}")
 async def serve_preview_file(token: str, file_path: str):
     user_dir = get_user_dir(token)
@@ -67,15 +103,16 @@ async def serve_preview_file(token: str, file_path: str):
 
     full_path = os.path.abspath(os.path.join(user_dir, file_path))
     if not full_path.startswith(user_dir) or not os.path.exists(full_path):
-        return HTMLResponse("<h1>File Not Found</h1><p>Please create an 'index.html' file first to view the live preview.</p>", status_code=404)
+        return HTMLResponse("<h1>File Not Found</h1><p>The selected file does not exist.</p>", status_code=404)
 
     return FileResponse(full_path)
 
 class PublishReq(BaseModel):
     token: str
     project_name: str
-    project_id: str | None = None  # if updating
-    files: list = []        # list of selected files
+    project_id: str | None = None
+    files: list = []
+    main_html_file: str = "index.html" # Used to determine the entry point URL
 
 @router.post("/api/publish")
 async def publish_project(data: PublishReq):
@@ -87,7 +124,6 @@ async def publish_project(data: PublishReq):
     if not data.files:
         return {"error": "No files selected to publish."}
 
-    # Verify all selected files exist in the user's workspace securely
     for f in data.files:
         p = os.path.abspath(os.path.join(user_dir, f))
         if not p.startswith(user_dir) or not os.path.isfile(p):
@@ -99,41 +135,36 @@ async def publish_project(data: PublishReq):
     project_id = data.project_id
     pub_path = ""
 
-    # If the user is explicitly updating a project via the UI button
     if project_id:
-        # Verify ownership
         c.execute("SELECT id FROM projects WHERE username=? AND id=?", (username, project_id))
         if not c.fetchone():
             conn.close()
             return {"error": "Project not found or you don't have permission."}
 
         pub_path = os.path.join(PUBLISHED_DIR, project_id)
-        # We wipe the old directory to ensure files that were un-ticked are actually removed from the published site
         if os.path.exists(pub_path):
             shutil.rmtree(pub_path)
 
         c.execute("UPDATE projects SET name=?, created_at=CURRENT_TIMESTAMP WHERE id=?", (data.project_name, project_id))
-
     else:
-        # Creating a brand new project record
-        project_id = str(uuid.uuid4())[:8] # short unique id
+        project_id = str(uuid.uuid4())[:8]
         pub_path = os.path.join(PUBLISHED_DIR, project_id)
         c.execute("INSERT INTO projects (id, username, name) VALUES (?, ?, ?)", (project_id, username, data.project_name))
 
     conn.commit()
     conn.close()
 
-    # Create empty directory
     os.makedirs(pub_path, exist_ok=True)
 
-    # Selectively copy ONLY the files requested by the user
     for f in data.files:
         src = os.path.join(user_dir, f)
         dst = os.path.join(pub_path, f)
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         shutil.copy2(src, dst)
 
-    return {"success": True, "project_id": project_id, "url": f"/p/{project_id}/index.html"}
+    # Return the URL pointing to the user's primary HTML file (e.g. index.html, app.html)
+    entry_file = data.main_html_file if data.main_html_file else "index.html"
+    return {"success": True, "project_id": project_id, "url": f"/p/{project_id}/{entry_file}"}
 
 @router.post("/api/projects")
 async def list_published_projects(data: dict):
@@ -146,7 +177,23 @@ async def list_published_projects(data: dict):
     projects = c.fetchall()
     conn.close()
 
-    return {"projects": [{"id": p[0], "name": p[1], "created_at": p[2], "url": f"/p/{p[0]}/index.html"} for p in projects]}
+    # We dynamically check which .html file is inside to generate the link
+    # This is slightly heavier, but accurate
+    proj_list = []
+    for p in projects:
+        pid, name, created_at = p
+        pub_path = os.path.join(PUBLISHED_DIR, pid)
+        entry = "index.html"
+        if os.path.exists(pub_path):
+            all_files = os.listdir(pub_path)
+            if "index.html" not in all_files:
+                html_files = [f for f in all_files if f.endswith(".html")]
+                if html_files:
+                    entry = html_files[0]
+
+        proj_list.append({"id": pid, "name": name, "created_at": created_at, "url": f"/p/{pid}/{entry}"})
+
+    return {"projects": proj_list}
 
 @router.post("/api/project/files")
 async def list_project_files(data: dict):
@@ -154,7 +201,6 @@ async def list_project_files(data: dict):
     project_id = data.get("project_id")
     if not username or not project_id: return {"error": "Unauthorized"}
 
-    # Verify ownership
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     c.execute("SELECT id FROM projects WHERE username=? AND id=?", (username, project_id))
@@ -182,7 +228,6 @@ async def serve_published_file(project_id: str, file_path: str):
     if not full_path.startswith(pub_path) or not os.path.exists(full_path):
         return HTMLResponse("<h1>404 Not Found</h1>", status_code=404)
 
-    # If it's an HTML file, inject the badge
     if file_path.endswith(".html"):
         with open(full_path, "r", encoding="utf-8") as f:
             content = f.read()
@@ -192,7 +237,6 @@ async def serve_published_file(project_id: str, file_path: str):
             ⚡ Created using <span style="color: #ffc107; font-weight: bold;">DEVPORTAL</span>
         </div>
         """
-        # Inject just before </body> if it exists, else append
         if "</body>" in content:
             content = content.replace("</body>", badge + "\n</body>")
         else:

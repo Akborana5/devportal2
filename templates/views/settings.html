@@ -7,6 +7,7 @@
         <div class="settings-tab" onclick="switchSettingsPanel('panel-editor', this)"><i class="fa-solid fa-keyboard"></i> Editor Settings</div>
         <div class="settings-tab" onclick="switchSettingsPanel('panel-terminal', this)"><i class="fa-solid fa-terminal"></i> Terminal Settings</div>
         <div class="settings-tab" onclick="switchSettingsPanel('panel-ai', this)"><i class="fa-solid fa-brain"></i> AI Settings</div>
+        <div class="settings-tab" onclick="switchSettingsPanel('panel-sync', this)"><i class="fa-solid fa-cloud-arrow-up"></i> Data & Sync</div>
     </div>
 
     <div class="settings-content-wrapper">
@@ -134,6 +135,27 @@
             <div class="setting-group">
                 <label>System Prompt</label>
                 <textarea id="setting-ai-prompt" class="setting-input" style="height: 80px; resize: vertical;" placeholder="You are a helpful coding assistant..."></textarea>
+            </div>
+        </div>
+
+        <div id="panel-sync" class="settings-section">
+            <h2 class="settings-title">Data Backup & Sync</h2>
+            <div style="background: rgba(255, 193, 7, 0.1); border: 1px solid var(--accent-main); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <p style="margin: 0 0 10px 0; color: var(--accent-main); font-weight: bold;"><i class="fa-solid fa-triangle-exclamation"></i> Hugging Face Storage</p>
+                <p style="margin: 0; font-size: 13px; color: var(--text-secondary);">Your code is deployed on a Hugging Face Space Docker container. Data may be lost on restart. Sync your data to your permanent HF bucket regularly to prevent data loss.</p>
+            </div>
+
+            <button class="editor-btn success" id="hf-sync-btn" onclick="syncHuggingFace()" style="padding: 10px 20px; font-size: 14px;">
+                <i class="fa-solid fa-rotate"></i> Sync Data to Hugging Face Bucket
+            </button>
+            <div id="sync-status" style="margin-top: 10px; font-size: 12px; color: var(--text-muted);"></div>
+
+            <div style="margin-top: 30px; border-top: var(--glass-border); padding-top: 20px;">
+                <h3 class="settings-title">Import/Export</h3>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button class="editor-btn" onclick="downloadWorkspace()"><i class="fa-solid fa-download"></i> Download Workspace (.zip)</button>
+                    <button class="editor-btn" onclick="importGithubRepo()"><i class="fa-brands fa-github"></i> Import GitHub Repo</button>
+                </div>
             </div>
         </div>
 

@@ -12,6 +12,7 @@ function switchView(viewId, navItem) {
         // Close mobile sidebar
         // Load projects if switching to projects view
         if (viewId === 'projects-view') loadPublishedProjects();
+        if (viewId === 'ai-chat-view') loadAIChatHistory();
 
         if(window.innerWidth <= 768) {
              document.getElementById('sidebar').classList.remove('open');
@@ -253,5 +254,62 @@ function handleChatInput(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         sendChatMessage();
+    }
+}
+
+async function loadAIChatHistory() {
+    if (!currentToken) return;
+
+    try {
+        const res = await fetch('/api/chat/history', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({token: currentToken})
+        });
+
+        const data = await res.json();
+        if (data.history) {
+            aiChatHistory = data.history;
+            const historyDiv = document.getElementById('ai-chat-history');
+
+            // Clear default messages
+            historyDiv.innerHTML = '';
+
+            if (data.history.length === 0) {
+                 appendChatMsg('system', 'Hello! I am your AI coding assistant. How can I help you build today?');
+            } else {
+                 data.history.forEach(msg => {
+                      if (msg.role === 'system') return; // Hide system prompt from UI
+
+                      let rawHtml = msg.role === 'assistant' ? marked.parse(msg.content) : msg.content;
+                      let safeHtml = msg.role === 'assistant' ? DOMPurify.sanitize(rawHtml) : msg.content;
+                      appendChatMsg(msg.role, safeHtml);
+                 });
+            }
+        }
+    } catch(e) {
+        console.error("Failed to load chat history.", e);
+    }
+}
+
+async function clearAIChatHistory() {
+    if (!confirm("Are you sure you want to clear your chat history?")) return;
+
+    try {
+        const res = await fetch('/api/chat/history/clear', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({token: currentToken})
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            aiChatHistory = [];
+            const historyDiv = document.getElementById('ai-chat-history');
+            historyDiv.innerHTML = '';
+            appendChatMsg('system', 'Chat history cleared. How can I help you build today?');
+        }
+    } catch(e) {
+        showToast("Failed to clear chat history", "error");
     }
 }

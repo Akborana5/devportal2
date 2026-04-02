@@ -158,3 +158,71 @@ function updateAIModelBadge() {
         badge.innerText = el.options[el.selectedIndex].text;
     }
 }
+
+async function syncHuggingFace() {
+    const btn = document.getElementById('hf-sync-btn');
+    const status = document.getElementById('sync-status');
+
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Syncing... Please wait.';
+    btn.disabled = true;
+    status.innerText = "Executing hf sync. This may take a minute...";
+
+    try {
+        const res = await fetch('/api/sync/hf', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({token: currentToken})
+        });
+        const data = await res.json();
+
+        if(data.success) {
+            showToast("Successfully synced to Hugging Face!", "success");
+            status.innerText = data.message;
+            status.style.color = "var(--success-color)";
+        } else {
+            showToast("Failed to sync.", "error");
+            status.innerText = data.error;
+            status.style.color = "var(--error-color)";
+        }
+    } catch(e) {
+        showToast("Network error during sync.", "error");
+        status.innerText = "Network error occurred.";
+        status.style.color = "var(--error-color)";
+    } finally {
+        btn.innerHTML = '<i class="fa-solid fa-rotate"></i> Sync Data to Hugging Face Bucket';
+        btn.disabled = false;
+    }
+}
+
+function downloadWorkspace() {
+    if (!currentToken) return;
+    window.location.href = `/api/export/${currentToken}`;
+}
+
+async function importGithubRepo() {
+    if (!currentToken) return;
+
+    const url = prompt("Enter a public GitHub repository URL to clone into your workspace (e.g., https://github.com/user/repo):");
+    if (!url) return;
+
+    showToast("Cloning repository... this may take a moment.", "info");
+
+    try {
+        const res = await fetch('/api/import/github', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({token: currentToken, github_url: url})
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            showToast("Repository imported successfully!", "success");
+            // If they are on the editor view, reload files
+            if (typeof loadFiles !== 'undefined') loadFiles();
+        } else {
+            showToast("Failed to import: " + (data.error || "Unknown error"), "error");
+        }
+    } catch(e) {
+        showToast("Network error during import.", "error");
+    }
+}
