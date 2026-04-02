@@ -6,3 +6,4 @@ jinja2
 python-dotenv
 bcrypt
 pydantic
+huggingface_hub[cli]
