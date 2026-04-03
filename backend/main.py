@@ -53,6 +53,7 @@ from backend.routes_files import router as files_router
 from backend.routes_ai import router as ai_router
 from backend.routes_terminal import router as terminal_router
 from backend.routes_sync import router as sync_router
+from backend.routes_github import router as github_router
 
 app = FastAPI()
 
@@ -69,6 +70,7 @@ app.include_router(files_router)
 app.include_router(ai_router)
 app.include_router(terminal_router)
 app.include_router(sync_router)
+app.include_router(github_router)
 
 @app.get("/", response_class=HTMLResponse)
 async def get(request: Request):
