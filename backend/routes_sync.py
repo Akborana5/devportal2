@@ -56,6 +56,7 @@ from backend.database import get_user_dir
 class ImportReq(BaseModel):
     token: str
     github_url: str
+    github_token: str = None
 
 @router.get("/api/export/{token}")
 async def export_workspace(token: str):
@@ -91,7 +92,15 @@ async def import_github(data: ImportReq):
 
         env = os.environ.copy()
         env["GIT_TERMINAL_PROMPT"] = "0"
-        result = subprocess.run(["git", "clone", data.github_url, tmp_dir], capture_output=True, text=True, timeout=60, env=env)
+
+        # Inject token into URL if provided
+        clone_url = data.github_url
+        if data.github_token:
+            # Assumes https://github.com/...
+            if clone_url.startswith("https://"):
+                clone_url = clone_url.replace("https://", f"https://oauth2:{data.github_token}@")
+
+        result = subprocess.run(["git", "clone", clone_url, tmp_dir], capture_output=True, text=True, timeout=60, env=env)
 
         if result.returncode != 0:
             return {"error": f"Failed to clone: {result.stderr}"}

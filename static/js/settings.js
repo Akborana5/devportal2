@@ -199,30 +199,58 @@ function downloadWorkspace() {
     window.location.href = `/api/export/${currentToken}`;
 }
 
+
+function toggleGithubModal() {
+    const modal = document.getElementById('github-import-modal');
+    if (modal.style.display === 'none' || modal.style.display === '') {
+        modal.style.display = 'block';
+        document.getElementById('github-repo-url').focus();
+    } else {
+        modal.style.display = 'none';
+        document.getElementById('github-repo-url').value = '';
+        document.getElementById('github-pat-token').value = '';
+    }
+}
+
 async function importGithubRepo() {
     if (!currentToken) return;
 
-    const url = prompt("Enter a public GitHub repository URL to clone into your workspace (e.g., https://github.com/user/repo):");
-    if (!url) return;
+    const url = document.getElementById('github-repo-url').value.trim();
+    const token = document.getElementById('github-pat-token').value.trim();
 
+    if (!url) {
+        showToast("Please enter a valid GitHub repository URL.", "warning");
+        return;
+    }
+    if (!url.startsWith('https://github.com/')) {
+        showToast("URL must start with https://github.com/", "warning");
+        return;
+    }
+
+    toggleGithubModal(); // Close modal immediately
     showToast("Cloning repository... this may take a moment.", "info");
 
     try {
+        const payload = { token: currentToken, github_url: url };
+        if (token) {
+            payload.github_token = token;
+        }
+
         const res = await fetch('/api/import/github', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({token: currentToken, github_url: url})
+            body: JSON.stringify(payload)
         });
 
         const data = await res.json();
         if (data.success) {
             showToast("Repository imported successfully!", "success");
-            // If they are on the editor view, reload files
-            if (typeof loadFiles !== 'undefined') loadFiles();
+            setTimeout(() => window.location.reload(), 1500);
         } else {
-            showToast("Failed to import: " + (data.error || "Unknown error"), "error");
+            showToast("Failed to import: " + data.error, "error");
         }
-    } catch(e) {
-        showToast("Network error during import.", "error");
+    } catch (e) {
+        showToast("Error importing repository", "error");
+        console.error(e);
     }
 }
