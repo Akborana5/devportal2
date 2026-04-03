@@ -77,6 +77,9 @@
                 <div class="nav-item" onclick="switchView('settings-view', this)">
                     <i class="fa-solid fa-gear w-20"></i> Settings
                 </div>
+                <div class="nav-item" onclick="switchView('apps-view', this)">
+                    <i class="fa-solid fa-link w-20"></i> Connected Apps
+                </div>
                 <div class="nav-item" onclick="logout()" style="color: var(--error-color);">
                     <i class="fa-solid fa-arrow-right-from-bracket w-20"></i> Logout
                 </div>
@@ -123,6 +126,10 @@
 
             <div id="settings-view" class="view-container">
                 {% include 'views/settings.html' %}
+            </div>
+
+            <div id="apps-view" class="view-container" style="padding: 20px;">
+                {% include 'views/apps.html' %}
             </div>
 
         </main>

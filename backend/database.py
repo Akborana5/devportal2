@@ -14,7 +14,16 @@ def init_db():
     c = conn.cursor()
     # Create users table
     c.execute('''CREATE TABLE IF NOT EXISTS users 
-                 (username TEXT PRIMARY KEY, password TEXT, token TEXT, settings TEXT)''')
+                 (username TEXT PRIMARY KEY, password TEXT, token TEXT, settings TEXT, github_access_token TEXT)''')
+
+    # Simple migration if column is missing (for existing sqlite databases before this change)
+    try:
+        c.execute("PRAGMA table_info(users)")
+        columns = [info[1] for info in c.fetchall()]
+        if 'github_access_token' not in columns:
+            c.execute("ALTER TABLE users ADD COLUMN github_access_token TEXT")
+    except Exception as e:
+        print("Migration error:", e)
 
     # Create published projects table
     c.execute('''CREATE TABLE IF NOT EXISTS projects

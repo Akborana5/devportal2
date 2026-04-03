@@ -13,6 +13,7 @@ function switchView(viewId, navItem) {
         // Load projects if switching to projects view
         if (viewId === 'projects-view') loadPublishedProjects();
         if (viewId === 'ai-chat-view') loadAIChatHistory();
+        if (viewId === 'apps-view') checkGithubStatus();
 
         if(window.innerWidth <= 768) {
              document.getElementById('sidebar').classList.remove('open');
@@ -311,5 +312,118 @@ async function clearAIChatHistory() {
         }
     } catch(e) {
         showToast("Failed to clear chat history", "error");
+    }
+}
+
+// Connected Apps functionality
+window.addEventListener('message', async (event) => {
+    if (event.data === 'github_oauth_success') {
+        showToast("GitHub connected successfully!", "success");
+        checkGithubStatus();
+    }
+});
+
+function connectGithub() {
+    if (!currentToken) return;
+    const width = 600, height = 700;
+    const left = (screen.width - width) / 2;
+    const top = (screen.height - height) / 2;
+    window.open(`/api/github/login?user_token=${currentToken}`, 'github_oauth', `width=${width},height=${height},top=${top},left=${left}`);
+}
+
+async function checkGithubStatus() {
+    if (!currentToken) return;
+    try {
+        const res = await fetch('/api/github/status', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({token: currentToken})
+        });
+        const data = await res.json();
+
+        const statusDiv = document.getElementById('github-auth-status');
+        const reposSection = document.getElementById('github-repos-section');
+
+        if (data.connected) {
+            statusDiv.innerHTML = '<span style="color: var(--success-color); font-weight: bold;"><i class="fa-solid fa-check-circle"></i> Connected</span>';
+            reposSection.style.display = 'block';
+            fetchGithubRepos();
+        } else {
+            statusDiv.innerHTML = '<button class="editor-btn primary" onclick="connectGithub()">Connect GitHub</button>';
+            reposSection.style.display = 'none';
+        }
+    } catch(e) {
+        console.error(e);
+    }
+}
+
+async function fetchGithubRepos() {
+    const list = document.getElementById('github-repos-list');
+    list.innerHTML = '<p style="color: var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Loading repositories...</p>';
+
+    try {
+        const res = await fetch('/api/github/repos', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({token: currentToken})
+        });
+        const data = await res.json();
+
+        if (data.error) {
+            list.innerHTML = `<p style="color: var(--error-color);">${data.error}</p>`;
+            return;
+        }
+
+        list.innerHTML = '';
+        if (data.repos.length === 0) {
+            list.innerHTML = '<p style="color: var(--text-muted);">No repositories found.</p>';
+            return;
+        }
+
+        data.repos.forEach(repo => {
+            const isPrivate = repo.private ? '<span style="font-size: 10px; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; margin-left: 10px;"><i class="fa-solid fa-lock"></i> Private</span>' : '';
+
+            list.innerHTML += `
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <h4 style="margin: 0 0 10px 0; color: var(--accent-main); display: flex; align-items: center; word-break: break-all;">
+                            ${repo.name} ${isPrivate}
+                        </h4>
+                        <p style="margin: 0 0 15px 0; font-size: 13px; color: var(--text-secondary); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 36px;">
+                            ${repo.description || 'No description available.'}
+                        </p>
+                    </div>
+                    <button class="editor-btn" style="width: 100%; justify-content: center;" onclick="importOauthRepo('${repo.clone_url}')">
+                        <i class="fa-solid fa-download"></i> Import
+                    </button>
+                </div>
+            `;
+        });
+    } catch(e) {
+        list.innerHTML = `<p style="color: var(--error-color);">Error fetching repositories.</p>`;
+    }
+}
+
+async function importOauthRepo(cloneUrl) {
+    document.getElementById('import-loading-overlay').style.display = 'flex';
+
+    try {
+        const res = await fetch('/api/github/import_oauth', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({token: currentToken, github_url: cloneUrl})
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            showToast(data.message, "success");
+            if (typeof loadFiles !== 'undefined') loadFiles();
+        } else {
+            showToast("Failed to import: " + (data.error || "Unknown error"), "error");
+        }
+    } catch(e) {
+        showToast("Network error during import.", "error");
+    } finally {
+        document.getElementById('import-loading-overlay').style.display = 'none';
     }
 }
