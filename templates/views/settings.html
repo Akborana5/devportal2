@@ -154,7 +154,27 @@
                 <h3 class="settings-title">Import/Export</h3>
                 <div style="display: flex; gap: 10px; margin-top: 10px;">
                     <button class="editor-btn" onclick="downloadWorkspace()"><i class="fa-solid fa-download"></i> Download Workspace (.zip)</button>
-                    <button class="editor-btn" onclick="importGithubRepo()"><i class="fa-brands fa-github"></i> Import GitHub Repo</button>
+                    <button class="editor-btn" onclick="toggleGithubModal()"><i class="fa-brands fa-github"></i> Import GitHub Repo</button>
+                </div>
+
+                <div id="github-import-modal" style="display: none; margin-top: 20px; padding: 15px; border: 1px solid var(--border-color); border-radius: 8px; background: rgba(0, 0, 0, 0.2);">
+                    <h4 style="margin: 0 0 10px 0; color: var(--text-primary);">Import from GitHub</h4>
+
+                    <div class="setting-group" style="margin-bottom: 10px;">
+                        <label>Repository URL <span style="color: #ff5252;">*</span></label>
+                        <input type="text" id="github-repo-url" class="setting-input" placeholder="https://github.com/user/repo">
+                    </div>
+
+                    <div class="setting-group" style="margin-bottom: 10px;">
+                        <label>Personal Access Token (Optional)</label>
+                        <input type="password" id="github-pat-token" class="setting-input" placeholder="ghp_xxxxxxxxxxxx">
+                        <p style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">Required only for private repositories. Will not be saved.</p>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <button class="editor-btn" onclick="toggleGithubModal()">Cancel</button>
+                        <button class="editor-btn primary" onclick="importGithubRepo()">Import</button>
+                    </div>
                 </div>
             </div>
         </div>
