@@ -2,7 +2,7 @@
 .dash-layout {
     display: flex;
     flex: 1;
-    height: calc(100dvh - 65px);
+    height: calc(100dvh - var(--topbar-height));
     padding: 30px;
     gap: 30px;
     box-sizing: border-box;
@@ -184,4 +184,45 @@
 @media (max-width: 1024px) {
     .dash-layout { flex-direction: column; }
     .dash-sidebar { min-width: 100%; max-width: 100%; }
+}
+
+@media (max-width: 768px) {
+    .dash-layout {
+        padding: 16px;
+        gap: 16px;
+        height: auto;
+        overflow-y: auto;
+    }
+
+    .dash-header h1 {
+        font-size: 24px;
+    }
+
+    .dash-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .dash-card {
+        padding: 18px;
+    }
+
+    .dash-card-icon {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    .dash-card h3 {
+        font-size: 15px;
+    }
+
+    .dash-card p {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 400px) {
+    .dash-grid {
+        grid-template-columns: 1fr;
+    }
 }

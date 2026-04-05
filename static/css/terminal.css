@@ -2,7 +2,7 @@
 .terminal-layout {
     display: flex;
     flex: 1;
-    height: calc(100dvh - 65px); /* Subtract top bar */
+    height: calc(100dvh - var(--topbar-height));
     padding: 20px;
     gap: 20px;
     box-sizing: border-box;
@@ -197,10 +197,45 @@ form.terminal-input-area {
 
     .terminal-layout {
         flex-direction: column;
+        padding: 10px;
+        gap: 10px;
     }
 
     .terminal-main {
         height: 100%;
+    }
+
+    .terminal-body {
+        font-size: 13px;
+        padding: 12px;
+    }
+
+    /* Prevent auto-zoom on input focus on Android/iOS */
+    #terminal-input {
+        font-size: 16px;
+    }
+
+    .terminal-input-area {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+
+    #terminal-send-btn {
+        min-width: 44px;
+        min-height: 44px;
+        height: 44px;
+        padding: 0 12px;
+    }
+
+    .termux-key {
+        padding: 8px 14px;
+        font-size: 12px;
+        min-height: 36px;
+        min-width: 44px;
+    }
+
+    #prompt-text {
+        display: none; /* Hide prompt on very small screens to save space */
     }
 }
 

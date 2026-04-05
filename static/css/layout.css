@@ -5,6 +5,20 @@
     height: 100%;
 }
 
+/* Sidebar Overlay (mobile) */
+#sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 99;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+#sidebar-overlay.active {
+    display: block;
+}
+
 /* Sidebar Styling */
 #sidebar {
     width: 260px;
@@ -42,7 +56,7 @@
 }
 
 .nav-item {
-    padding: 12px 16px;
+    padding: 14px 16px;
     margin-bottom: 5px;
     border-radius: 8px;
     cursor: pointer;
@@ -52,6 +66,8 @@
     gap: 12px;
     transition: all 0.2s ease;
     font-weight: 500;
+    min-height: 44px;
+    touch-action: manipulation;
 }
 
 .nav-item:hover {
@@ -75,20 +91,25 @@
 }
 
 #top-bar {
-    height: 65px;
-    padding: 0 24px;
+    height: var(--topbar-height);
+    padding: 0 16px;
+    padding-left: calc(16px + env(safe-area-inset-left));
+    padding-right: calc(16px + env(safe-area-inset-right));
     border-bottom: var(--glass-border);
     display: flex;
     align-items: center;
     justify-content: space-between;
     background: rgba(10, 10, 10, 0.8);
     backdrop-filter: var(--backdrop-blur);
+    -webkit-backdrop-filter: var(--backdrop-blur);
+    flex-shrink: 0;
 }
 
 .view-container {
     flex: 1;
     display: none; /* Views are hidden by default */
     overflow: hidden;
+    min-height: 0;
 }
 
 .view-container.active {
@@ -96,35 +117,90 @@
     flex-direction: column;
 }
 
+/* Bottom Navigation Bar (mobile only) */
+#bottom-nav {
+    display: none;
+}
+
 /* Mobile Adjustments */
 @media (max-width: 768px) {
     #sidebar {
-        position: absolute;
+        position: fixed;
+        top: 0;
+        left: 0;
         height: 100%;
         transform: translateX(-100%);
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
     }
     #sidebar.open {
         transform: translateX(0);
         box-shadow: 10px 0 30px rgba(0,0,0,0.5);
     }
-}
 
-/* Additional Mobile/Android Adjustments */
-@media (max-width: 480px) {
+    /* Show bottom nav on mobile */
+    #bottom-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+        background: var(--bg-surface);
+        border-top: var(--glass-border);
+        z-index: 90;
+        align-items: stretch;
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .bottom-nav-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        color: var(--text-muted);
+        font-size: 10px;
+        cursor: pointer;
+        transition: color 0.2s ease;
+        touch-action: manipulation;
+        min-height: 44px;
+    }
+
+    .bottom-nav-item i {
+        font-size: 18px;
+    }
+
+    .bottom-nav-item.active {
+        color: var(--accent-main);
+    }
+
+    /* Shrink content area to leave room for bottom nav */
+    #main-content {
+        padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+    }
+
     #top-bar {
-        padding: 0 15px; /* Reduce padding for smaller screens */
+        height: var(--topbar-height-mobile);
+        padding: 0 12px;
+        padding-left: calc(12px + env(safe-area-inset-left));
+        padding-right: calc(12px + env(safe-area-inset-right));
     }
 
     #top-bar-right {
-        gap: 10px; /* Reduce gap between theme icon and status */
+        gap: 12px;
     }
 
     #connection-status {
-        font-size: 11px; /* Slightly smaller text */
+        font-size: 11px;
     }
+}
 
+@media (max-width: 480px) {
     #sidebar {
-        width: 240px; /* Make sidebar slightly narrower on very small phones */
+        width: calc(100% - 60px);
+        max-width: 300px;
     }
 }
 
@@ -140,4 +216,8 @@
 }
 :root.light-theme .nav-item.active {
     background: rgba(0, 102, 204, 0.1);
+}
+:root.light-theme #bottom-nav {
+    background: var(--bg-surface);
+    border-top: 1px solid rgba(0,0,0,0.08);
 }

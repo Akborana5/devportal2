@@ -35,6 +35,11 @@
     /* Shadows */
     --shadow-sm: 0 4px 6px rgba(0,0,0,0.3);
     --shadow-md: 0 10px 15px rgba(0,0,0,0.5);
+
+    /* Layout heights (used across multiple CSS files) */
+    --topbar-height: 56px;
+    --topbar-height-mobile: 52px;
+    --bottom-nav-height: 56px;
 }
 
 :root.light-theme {
@@ -67,6 +72,14 @@ body {
     overflow: hidden;
     display: flex;
     transition: background-color 0.3s ease, color 0.3s ease;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Remove tap highlight on all interactive elements */
+a, button, [role="button"], .nav-item, .dash-card, .file-item,
+.settings-tab, .term-tab, .termux-key, .bottom-nav-item {
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* Custom Scrollbar */
