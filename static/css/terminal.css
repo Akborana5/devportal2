@@ -235,7 +235,11 @@ form.terminal-input-area {
     }
 
     #prompt-text {
-        display: none; /* Hide prompt on very small screens to save space */
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 12px;
     }
 }
 

@@ -86,7 +86,7 @@
     <div id="app-layout">
         
         <!-- Mobile sidebar overlay -->
-        <div id="sidebar-overlay" onclick="document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('active');"></div>
+        <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
         <nav id="sidebar">
             <div class="logo-container">
@@ -127,7 +127,7 @@
 
         <main id="main-content">
             <header id="top-bar">
-                <button id="mobile-menu-btn" style="background:none; border:none; color:var(--text-primary); font-size:20px; cursor:pointer; min-width:44px; min-height:44px; display:flex; align-items:center; justify-content:center;" onclick="document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebar-overlay').classList.toggle('active');">
+                <button id="mobile-menu-btn" style="background:none; border:none; color:var(--text-primary); font-size:20px; cursor:pointer; min-width:44px; min-height:44px; display:flex; align-items:center; justify-content:center;" onclick="toggleSidebar()">
                     <i class="fa-solid fa-bars"></i>
                 </button>
                 <div id="top-bar-right" style="display:flex; align-items:center; gap: 20px;">
@@ -209,6 +209,11 @@
     <script src="/static/js/dashboard.js?v=5"></script>
     <script src="/static/js/projects.js?v=5"></script>
     <script>
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sidebar-overlay').classList.toggle('active');
+    }
+
     function navToView(viewId, bottomNavEl) {
         // Update sidebar active state via data-view attribute
         var sidebarNav = document.querySelector('.nav-item[data-view="' + viewId + '"]');
