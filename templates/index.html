@@ -2,13 +2,38 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>DEVPORTAL - Developer Workspace</title>
 
-    <link rel="stylesheet" href="/static/css/terminal.css">
-    <link rel="stylesheet" href="/static/css/editor.css">
+    <!-- SEO -->
+    <meta name="description" content="DEVPORTAL is a professional cloud-based developer workspace with a terminal, code editor, project manager, and AI assistant — accessible from any device.">
+    <meta name="keywords" content="developer portal, cloud IDE, terminal, code editor, AI assistant, devportal">
+    <meta name="author" content="DEVPORTAL">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="DEVPORTAL - Developer Workspace">
+    <meta property="og:description" content="A professional cloud-based developer workspace with terminal, code editor, project manager, and AI assistant.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="DEVPORTAL - Developer Workspace">
+    <meta name="twitter:description" content="A professional cloud-based developer workspace with terminal, code editor, project manager, and AI assistant.">
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop">
+
+    <!-- Android / PWA Chrome theme -->
+    <meta name="theme-color" content="#050505">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="DEVPORTAL">
+
     <link rel="stylesheet" href="/static/css/variables.css">
     <link rel="stylesheet" href="/static/css/layout.css">
+    <link rel="stylesheet" href="/static/css/terminal.css">
+    <link rel="stylesheet" href="/static/css/editor.css">
     <link rel="stylesheet" href="/static/css/settings.css">
     <link rel="stylesheet" href="/static/css/dashboard.css">
 
@@ -34,12 +59,23 @@
         /* Button Animations */
         button {
             transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
         }
         button:hover {
             transform: translateY(-1px);
         }
         button:active {
-            transform: translateY(1px);
+            transform: translateY(0);
+        }
+
+        /* Toast: stay above bottom nav on mobile */
+        @media (max-width: 768px) {
+            #toast-container {
+                bottom: calc(72px + env(safe-area-inset-bottom));
+                right: 12px;
+                left: 12px;
+                align-items: stretch;
+            }
         }
     </style>
 </head>
@@ -49,6 +85,9 @@
 
     <div id="app-layout">
         
+        <!-- Mobile sidebar overlay -->
+        <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
         <nav id="sidebar">
             <div class="logo-container">
                 <i class="fa-solid fa-code" style="color: var(--accent-main); font-size: 24px;"></i>
@@ -56,28 +95,28 @@
             </div>
             
             <div class="nav-menu">
-                <div class="nav-item" onclick="switchView('dashboard-view', this)">
+                <div class="nav-item" data-view="dashboard-view" onclick="switchView('dashboard-view', this)">
                     <i class="fa-solid fa-chart-line w-20"></i> Home
                 </div>
-                <div class="nav-item active" onclick="switchView('terminal-view', this)">
+                <div class="nav-item active" data-view="terminal-view" onclick="switchView('terminal-view', this)">
                     <i class="fa-solid fa-terminal w-20"></i> Terminal
                 </div>
-                <div class="nav-item" onclick="switchView('editor-view', this)">
+                <div class="nav-item" data-view="editor-view" onclick="switchView('editor-view', this)">
                     <i class="fa-solid fa-file-code w-20"></i> Code Editor
                 </div>
-                <div class="nav-item" onclick="switchView('projects-view', this)">
+                <div class="nav-item" data-view="projects-view" onclick="switchView('projects-view', this)">
                     <i class="fa-solid fa-folder-tree w-20"></i> Projects
                 </div>
-                <div class="nav-item" onclick="switchView('ai-chat-view', this)">
+                <div class="nav-item" data-view="ai-chat-view" onclick="switchView('ai-chat-view', this)">
                     <i class="fa-solid fa-brain w-20" style="color: var(--accent-main);"></i> AI Chat
                 </div>
             </div>
             
             <div class="nav-menu" style="border-top: var(--glass-border); padding-top: 15px; flex: none;">
-                <div class="nav-item" onclick="switchView('settings-view', this)">
+                <div class="nav-item" data-view="settings-view" onclick="switchView('settings-view', this)">
                     <i class="fa-solid fa-gear w-20"></i> Settings
                 </div>
-                <div class="nav-item" onclick="switchView('apps-view', this)">
+                <div class="nav-item" data-view="apps-view" onclick="switchView('apps-view', this)">
                     <i class="fa-solid fa-link w-20"></i> Connected Apps
                 </div>
                 <div class="nav-item" onclick="logout()" style="color: var(--error-color);">
@@ -88,12 +127,12 @@
 
         <main id="main-content">
             <header id="top-bar">
-                <button id="mobile-menu-btn" style="background:none; border:none; color:var(--text-primary); font-size:20px; cursor:pointer;" onclick="document.getElementById('sidebar').classList.toggle('open')">
+                <button id="mobile-menu-btn" style="background:none; border:none; color:var(--text-primary); font-size:20px; cursor:pointer; min-width:44px; min-height:44px; display:flex; align-items:center; justify-content:center;" onclick="toggleSidebar()">
                     <i class="fa-solid fa-bars"></i>
                 </button>
                 <div id="top-bar-right" style="display:flex; align-items:center; gap: 20px;">
                     <!-- Theme Toggle -->
-                    <button id="theme-toggle" onclick="toggleTheme()" style="background:none; border:none; color:var(--text-primary); cursor:pointer; font-size: 1.2rem;">
+                    <button id="theme-toggle" onclick="toggleTheme()" style="background:none; border:none; color:var(--text-primary); cursor:pointer; font-size: 1.2rem; min-width:44px; min-height:44px; display:flex; align-items:center; justify-content:center;">
                         <i id="theme-icon" class="fa-solid fa-moon"></i>
                     </button>
                     <!-- Connection Status -->
@@ -136,14 +175,56 @@
     </div>
 
     <!-- Toast Container -->
-    <div id="toast-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;"></div>
+    <div id="toast-container" style="position: fixed; bottom: 80px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;"></div>
 
-    <script src="/static/js/app.js?v=4"></script>
-    <script src="/static/js/auth.js?v=4"></script>
-    <script src="/static/js/terminal.js?v=4"></script>
-    <script src="/static/js/editor.js?v=4"></script>
-    <script src="/static/js/settings.js?v=4"></script>
-    <script src="/static/js/dashboard.js?v=4"></script>
-    <script src="/static/js/projects.js?v=4"></script>
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav id="bottom-nav">
+        <div class="bottom-nav-item active" onclick="navToView('terminal-view', this)">
+            <i class="fa-solid fa-terminal"></i>
+            <span>Terminal</span>
+        </div>
+        <div class="bottom-nav-item" onclick="navToView('editor-view', this)">
+            <i class="fa-solid fa-file-code"></i>
+            <span>Editor</span>
+        </div>
+        <div class="bottom-nav-item" onclick="navToView('ai-chat-view', this)">
+            <i class="fa-solid fa-brain"></i>
+            <span>AI Chat</span>
+        </div>
+        <div class="bottom-nav-item" onclick="navToView('projects-view', this)">
+            <i class="fa-solid fa-folder-tree"></i>
+            <span>Projects</span>
+        </div>
+        <div class="bottom-nav-item" onclick="navToView('dashboard-view', this)">
+            <i class="fa-solid fa-chart-line"></i>
+            <span>Home</span>
+        </div>
+    </nav>
+
+    <script src="/static/js/app.js?v=5"></script>
+    <script src="/static/js/auth.js?v=5"></script>
+    <script src="/static/js/terminal.js?v=5"></script>
+    <script src="/static/js/editor.js?v=5"></script>
+    <script src="/static/js/settings.js?v=5"></script>
+    <script src="/static/js/dashboard.js?v=5"></script>
+    <script src="/static/js/projects.js?v=5"></script>
+    <script>
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sidebar-overlay').classList.toggle('active');
+    }
+
+    function navToView(viewId, bottomNavEl) {
+        // Update sidebar active state via data-view attribute
+        var sidebarNav = document.querySelector('.nav-item[data-view="' + viewId + '"]');
+        switchView(viewId, sidebarNav);
+        // Update bottom nav active state
+        document.querySelectorAll('.bottom-nav-item').forEach(function(i) { i.classList.remove('active'); });
+        bottomNavEl.classList.add('active');
+        // Close sidebar overlay if open
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebar-overlay').classList.remove('active');
+    }
+    </script>
 </body>
 </html>

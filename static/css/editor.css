@@ -2,7 +2,7 @@
 .editor-layout {
     display: flex;
     flex: 1;
-    height: calc(100dvh - 65px);
+    height: calc(100dvh - var(--topbar-height));
     padding: 20px;
     gap: 20px;
     box-sizing: border-box;
@@ -163,51 +163,54 @@
     .editor-layout {
         padding: 10px;
         gap: 10px;
-        height: calc(100dvh - 65px); /* Ensure accurate dynamic viewport */
-        overflow-y: auto; /* Allow scrolling if things get too cramped */
+        height: calc(100dvh - var(--topbar-height-mobile));
+        overflow-y: auto;
     }
 
     .file-explorer {
-        height: 150px; /* Make it more compact on mobile */
-        min-height: 150px;
+        height: 140px;
+        min-height: 140px;
     }
 
     .editor-toolbar {
-        flex-wrap: wrap; /* Allow toolbar items to wrap on small screens */
+        flex-wrap: wrap;
         height: auto;
         padding: 8px;
-        gap: 5px;
+        gap: 6px;
         justify-content: flex-start;
     }
 
+    /* Prevent auto-zoom on input focus on Android/iOS */
     .filename-input {
-        width: 100%; /* Take full width on small screens */
-        margin-bottom: 5px;
+        width: 100%;
+        font-size: 16px;
     }
 
     .editor-btn {
-        padding: 6px 10px; /* Slightly smaller padding */
-        font-size: 11px;
+        padding: 8px 12px;
+        font-size: 12px;
+        min-height: 36px;
+        touch-action: manipulation;
     }
 
     .editor-split-container {
-        flex-direction: column; /* Stack editor and preview vertically on mobile */
+        flex-direction: column;
     }
 
     #preview-container {
         border-left: none;
         border-top: var(--glass-border);
-        height: 50%; /* Give it half the space when visible */
+        height: 50%;
     }
 }
 
 /* Fullscreen Preview */
 #preview-container.fullscreen-preview {
     position: fixed;
-    top: 65px;
+    top: var(--topbar-height);
     left: 0;
     width: 100vw;
-    height: calc(100dvh - 65px);
+    height: calc(100dvh - var(--topbar-height));
     z-index: 9999;
     border: none;
     box-shadow: 0 0 50px rgba(0,0,0,0.8);

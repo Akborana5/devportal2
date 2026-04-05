@@ -1,22 +1,22 @@
 <div class="dash-container">
     <h1 class="dash-title"><i class="fa-solid fa-link" style="color: var(--accent-main);"></i> Connected Apps</h1>
 
-    <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; gap: 20px; align-items: center;">
-            <i class="fa-brands fa-github" style="font-size: 40px; color: #fff;"></i>
-            <div>
+    <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px 25px; margin-bottom: 20px;" class="apps-card-row">
+        <div style="display: flex; gap: 20px; align-items: center; flex: 1; min-width: 0;">
+            <i class="fa-brands fa-github" style="font-size: 36px; color: #fff; flex-shrink: 0;"></i>
+            <div style="min-width: 0;">
                 <h3 style="margin: 0 0 5px 0;">GitHub</h3>
                 <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">Connect your GitHub account to directly browse and import your public and private repositories.</p>
             </div>
         </div>
-        <div id="github-auth-status">
-            <button class="editor-btn primary" onclick="connectGithub()">Connect GitHub</button>
+        <div id="github-auth-status" style="flex-shrink: 0;">
+            <button class="editor-btn primary" onclick="connectGithub()" style="min-height: 44px; white-space: nowrap; touch-action: manipulation;">Connect GitHub</button>
         </div>
     </div>
 
     <div id="github-repos-section" style="display: none; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px;">
         <h3 style="margin: 0 0 15px 0;"><i class="fa-solid fa-code-branch"></i> Your Repositories</h3>
-        <div id="github-repos-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">
+        <div id="github-repos-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
             <p style="color: var(--text-muted);">Loading repositories...</p>
         </div>
     </div>
@@ -28,3 +28,16 @@
         <p style="color: var(--text-muted); margin-top: 10px;">Please wait while we clone the files into your workspace.</p>
     </div>
 </div>
+
+<style>
+@media (max-width: 600px) {
+    .apps-card-row {
+        flex-direction: column !important;
+        gap: 15px;
+        align-items: flex-start !important;
+    }
+    #github-repos-list {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
